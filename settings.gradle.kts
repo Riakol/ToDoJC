@@ -19,6 +19,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "TodoJS"
+rootProject.name = "TodoJC"
 include(":app")
- 
+include(":data")
+include(":domain")
