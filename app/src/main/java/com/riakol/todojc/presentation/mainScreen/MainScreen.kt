@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -18,13 +17,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.riakol.todojs.R
 
-@Preview
 @Composable
-fun Main_screen() {
+fun Main_screen(
+
+) {
     Scaffold(
         bottomBar = {
             BottomAppBar(
@@ -42,8 +41,7 @@ fun Main_screen() {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            painter = painterResource(id = R.drawable.plus),
-                            contentDescription = ""
+                            painter = painterResource(id = R.drawable.plus), contentDescription = ""
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text("New list")
@@ -58,19 +56,16 @@ fun Main_screen() {
                     }
                 }
             }
-        }
-    ) {paddingValues ->
+        }) { paddingValues ->
         Column(
-            modifier = Modifier
-                .padding(paddingValues),
+            modifier = Modifier.padding(paddingValues),
         ) {
             Column(
                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 64.dp),
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 Row(
-                    modifier = Modifier.clickable {},
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.clickable {}, verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.white_balance_sunny),
@@ -80,8 +75,7 @@ fun Main_screen() {
                     Text("Planned")
                 }
                 Row(
-                    modifier = Modifier.clickable {},
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.clickable {}, verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.calendar_range),
@@ -91,19 +85,16 @@ fun Main_screen() {
                     Text("Planned")
                 }
                 Row(
-                    modifier = Modifier.clickable {},
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.clickable {}, verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.account),
-                        contentDescription = ""
+                        painter = painterResource(id = R.drawable.account), contentDescription = ""
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     Text("Assigned to me")
                 }
                 Row(
-                    modifier = Modifier.clickable {},
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.clickable {}, verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.home_plus_outline),
@@ -115,8 +106,6 @@ fun Main_screen() {
                 HorizontalDivider(thickness = 2.dp)
             }
         }
-        LazyColumn {
 
-        }
     }
 }

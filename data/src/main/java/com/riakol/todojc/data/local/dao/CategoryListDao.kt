@@ -1,11 +1,11 @@
-package com.riakol.todojc.data.dao
+package com.riakol.todojc.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.riakol.todojc.data.entity.CategoryList
+import com.riakol.todojc.data.local.entity.CategoryList
 
 @Dao
 interface CategoryListDao {

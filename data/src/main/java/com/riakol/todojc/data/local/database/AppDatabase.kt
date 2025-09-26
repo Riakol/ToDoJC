@@ -1,14 +1,14 @@
-package com.riakol.todojc.data.database
+package com.riakol.todojc.data.local.database
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.riakol.todojc.data.dao.CategoryListDao
-import com.riakol.todojc.data.entity.CategoryList
-import com.riakol.todojc.data.entity.GroupList
-import com.riakol.todojc.data.entity.SubTask
-import com.riakol.todojc.data.entity.Task
+import com.riakol.todojc.data.local.dao.CategoryListDao
+import com.riakol.todojc.data.local.entity.CategoryList
+import com.riakol.todojc.data.local.entity.GroupList
+import com.riakol.todojc.data.local.entity.SubTask
+import com.riakol.todojc.data.local.entity.Task
 
 @Database(
     entities = [

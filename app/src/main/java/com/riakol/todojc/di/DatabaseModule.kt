@@ -1,8 +1,9 @@
-package com.riakol.todojc.data.database
+package com.riakol.todojc.di
 
 import android.content.Context
 import androidx.room.Room
-import com.riakol.todojc.data.dao.CategoryListDao
+import com.riakol.todojc.data.local.dao.CategoryListDao
+import com.riakol.todojc.data.local.database.AppDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
