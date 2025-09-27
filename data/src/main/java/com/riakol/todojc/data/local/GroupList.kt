@@ -1,4 +1,4 @@
-package com.riakol.todojc.data.local.entity
+package com.riakol.todojc.data.local
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
