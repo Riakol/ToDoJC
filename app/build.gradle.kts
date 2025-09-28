@@ -52,6 +52,7 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
     implementation(project(path = ":domain"))
     implementation(project(path = ":data"))
     implementation(libs.androidx.core.ktx)
