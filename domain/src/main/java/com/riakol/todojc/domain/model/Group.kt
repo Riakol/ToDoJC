@@ -1,7 +1,7 @@
 package com.riakol.todojc.domain.model
 
-data class Category(
+data class Group(
     val id: Int,
     val name: String,
-    val groups: List<Group> = emptyList()
+    val categoryId: Int?
 )

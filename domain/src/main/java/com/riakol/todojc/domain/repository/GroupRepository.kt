@@ -1,0 +1,10 @@
+package com.riakol.todojc.domain.repository
+
+import com.riakol.todojc.domain.model.Group
+import kotlinx.coroutines.flow.Flow
+
+interface GroupRepository {
+    fun getGroups(): Flow<List<Group>>
+    fun getUnassignedGroups(): Flow<List<Group>>
+    suspend fun addGroup(group: Group)
+}

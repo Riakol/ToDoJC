@@ -1,4 +1,4 @@
-package com.riakol.todojc.data.local
+package com.riakol.todojc.data.local.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -22,5 +22,5 @@ data class GroupList(
     @ColumnInfo(name = "group_name")
     val name: String,
     @ColumnInfo(name = "category_id")
-    val categoryId: Int
+    val categoryId: Int?
 )

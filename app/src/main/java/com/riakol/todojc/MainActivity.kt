@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.riakol.todojc.data.local.dao.CategoryListDao
+import com.riakol.todojc.data.local.dao.GroupListDao
 import com.riakol.todojc.presentation.MainViewModel
 import com.riakol.todojs.ui.theme.TodoJSTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -20,6 +21,7 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
 
     @Inject lateinit var categoryDao: CategoryListDao
+    @Inject lateinit var groupDao: GroupListDao
     private val viewModel: MainViewModel by viewModels()
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

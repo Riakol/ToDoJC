@@ -1,18 +1,24 @@
 package com.riakol.todojc.data.mapper
 
-import com.riakol.todojc.data.local.CategoryList
+import com.riakol.todojc.data.local.entity.CategoryList
+import com.riakol.todojc.data.local.relations.CategoryWithGroups
 import com.riakol.todojc.domain.model.Category
 
-fun CategoryList.toCategory(): Category {
+fun CategoryWithGroups.toCategory(): Category {
     return Category(
-        id = this.id,
-        name = this.name
+        id = this.category.id,
+        name = this.category.name,
+        groups = this.groups.map {it.toGroup()}
     )
 }
 
-fun Category.toCategoryList(): CategoryList {
-    return CategoryList(
-        id = this.id,
-        name = this.name
+fun Category.toCategoryWithGroups(): CategoryWithGroups {
+    return CategoryWithGroups(
+        category = CategoryList(
+            id = this.id,
+            name = this.name
+        ),
+        groups = this.groups.map {it.toGroupList()}
     )
+
 }

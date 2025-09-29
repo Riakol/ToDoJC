@@ -6,15 +6,19 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DensityMedium
 import androidx.compose.material.icons.filled.Update
@@ -29,6 +33,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,15 +48,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.riakol.todojc.domain.model.Category
+import com.riakol.todojc.domain.model.Group
 import com.riakol.todojc.presentation.MainViewModel
+import com.riakol.todojc.presentation.mainScreen.DialogState
+import com.riakol.todojc.presentation.mainScreen.MainScreenItem
 import com.riakol.todojs.R
 
 @Composable
 fun Main_screen(
     viewModel: MainViewModel
 ) {
-    var showDialog by remember { mutableStateOf(false) }
-    val categoriesState by viewModel.categories.collectAsStateWithLifecycle()
+    var dialogState by remember { mutableStateOf<DialogState>(DialogState.None) }
+    val itemsState by viewModel.mainScreenItems.collectAsStateWithLifecycle()
 
     Scaffold(
         bottomBar = {
@@ -67,7 +75,7 @@ fun Main_screen(
                 ) {
                     Row(
                         modifier = Modifier.clickable {
-                            showDialog = true
+                            dialogState = DialogState.AddNewCategory
                         },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -78,7 +86,9 @@ fun Main_screen(
                         Text("New list")
                     }
                     IconButton(
-                        onClick = {},
+                        onClick = {
+                            dialogState = DialogState.AddNewGroup
+                        },
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.card_plus_outline),
@@ -143,52 +153,42 @@ fun Main_screen(
                     .padding(horizontal = 10.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(categoriesState) { category ->
-                    CategoryItemDropdownMenu(category)
+                items(
+                    itemsState,
+                    contentType = { item -> item.javaClass }
+                ) { item ->
+                    when(item) {
+                        is MainScreenItem.CategoryItem -> CategoryItemDropdownMenu(item.category)
+                        is MainScreenItem.GroupItem -> GroupItem(item.group)
+                    }
                 }
+
             }
         }
 
     }
-    if (showDialog) {
-        var listName by rememberSaveable { mutableStateOf("") }
 
-        AlertDialog(
-            onDismissRequest = {
-                showDialog = false
-            },
-            title = { Text("Enter list title") },
-            text = {
-                OutlinedTextField(
-                    value = listName,
-                    onValueChange = { listName = it },
-                    label = { Text("List name") },
-                    singleLine = true
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        if (listName.isNotBlank()) {
-                            viewModel.addCategory(listName)
-                        }
-                        showDialog = false
-                    },
-                    enabled = listName.isNotBlank()
-                ) {
-                    Text("CREATE LIST")
+    when (val currentDialog = dialogState) {
+        is DialogState.None -> {}
+        is DialogState.AddNewCategory -> {
+            AddNewCategoryDialog(
+                onDismiss = { dialogState = DialogState.None },
+                onConfirm = { newName ->
+                    viewModel.addCategory(newName)
+                    dialogState = DialogState.None
                 }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        showDialog = false
-                    }
-                ) {
-                    Text("CANCEL")
+            )
+        }
+        is DialogState.RenameCategory -> TODO()
+        is DialogState.AddNewGroup -> {
+            AddNewGroupDialog(
+                onDismiss = { dialogState = DialogState.None },
+                onConfirm = { groupName ->
+                    viewModel.addUnassignedGroup(groupName)
+                    dialogState = DialogState.None
                 }
-            }
-        )
+            )
+        }
     }
 }
 
@@ -196,14 +196,13 @@ fun Main_screen(
 fun CategoryItemDropdownMenu(category: Category) {
     var isExpanded by remember { mutableStateOf(false) }
     val rotationAngle by animateFloatAsState(
-        targetValue = if (isExpanded) 180f else 0f,
+        targetValue = if (isExpanded) 0f else 90f,
         label = "rotation"
     )
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-//            .padding(vertical = 4.dp)
     ) {
         Row(
             modifier = Modifier
@@ -212,12 +211,18 @@ fun CategoryItemDropdownMenu(category: Category) {
                 .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            if (!isExpanded) {
+                Icon(
+                    painter = painterResource(id = R.drawable.card),
+                    contentDescription = "category icon"
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            }
             Text(
                 category.name,
                 modifier = Modifier.weight(1f)
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            if (isExpanded) CategoryItemSettingsDropdownMenu()
+            if (isExpanded) CategoryItemOptions()
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,
                 contentDescription = "Expand",
@@ -230,21 +235,36 @@ fun CategoryItemDropdownMenu(category: Category) {
             enter = expandVertically(),
             exit = shrinkVertically()
         ) {
-            Column(
-                modifier = Modifier
-                    .padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(15.dp)
-            ) {
-                Text("Подпункт 1")
-                Text("Подпункт 2")
-                Text("Подпункт 3")
-            }
+
         }
     }
 }
 
 @Composable
-fun CategoryItemSettingsDropdownMenu() {
+fun GroupItem(
+    group: Group
+) {
+    Row(
+        modifier = Modifier
+            .padding(start = 10.dp, top = 8.dp, bottom = 8.dp)
+            .height(IntrinsicSize.Min),
+
+        ) {
+        VerticalDivider(
+            modifier = Modifier.fillMaxHeight(),
+            thickness = 3.dp,
+            color = Color.Gray
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(
+            text = group.name,
+        )
+    }
+}
+
+
+@Composable
+fun CategoryItemOptions() {
     var isExpanded by remember { mutableStateOf(false) }
 
     Box {
@@ -267,13 +287,97 @@ fun CategoryItemSettingsDropdownMenu() {
                         Icons.Default.Update,
                         contentDescription = "Rename group"
                     )
-                } ,
+                },
                 onClick = { /* Do something... */ }
             )
             DropdownMenuItem(
-                text = { Text("Option 2") },
+                text = { Text("Add group") },
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.AddCircleOutline,
+                        contentDescription = "Add group"
+                    )
+                },
                 onClick = { /* Do something... */ }
             )
         }
     }
+}
+
+@Composable
+fun AddNewCategoryDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    var listName by rememberSaveable { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = {
+            onDismiss
+        },
+        title = { Text("Enter list title") },
+        text = {
+            OutlinedTextField(
+                value = listName,
+                onValueChange = { listName = it },
+                label = { Text("List name") },
+                singleLine = true
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirm(listName)
+                },
+                enabled = listName.isNotBlank()
+            ) {
+                Text("CREATE LIST")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss
+            ) {
+                Text("CANCEL")
+            }
+        }
+    )
+}
+
+@Composable
+fun AddNewGroupDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    var groupName by rememberSaveable { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = {
+            onDismiss
+        },
+        title = { Text("Enter group title") },
+        text = {
+            OutlinedTextField(
+                value = groupName,
+                onValueChange = { groupName = it },
+                label = { Text("Group name") },
+                singleLine = true
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirm(groupName)
+                },
+                enabled = groupName.isNotBlank()
+            ) {
+                Text("CREATE GROUP")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss
+            ) {
+                Text("CANCEL")
+            }
+        }
+    )
 }

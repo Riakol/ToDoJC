@@ -1,8 +1,9 @@
-package com.riakol.todojc.di
+package com.riakol.todojc.data.di
 
 import android.content.Context
 import androidx.room.Room
 import com.riakol.todojc.data.local.dao.CategoryListDao
+import com.riakol.todojc.data.local.dao.GroupListDao
 import com.riakol.todojc.data.local.database.AppDatabase
 import dagger.Module
 import dagger.Provides
@@ -18,13 +19,21 @@ object DatabaseModule {
     @Singleton
     fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
         return Room.databaseBuilder(
-            context,
-            AppDatabase::class.java,
-            "app_database"
-        ).build()
+                context,
+                AppDatabase::class.java,
+                "app_database"
+            ).fallbackToDestructiveMigration(false)
+            .build()
     }
+
     @Provides
     fun provideCategoryDao(database: AppDatabase): CategoryListDao {
         return database.categoryListDao()
     }
+
+    @Provides
+    fun provideGroupDao(database: AppDatabase): GroupListDao {
+        return database.groupListDao()
+    }
+
 }

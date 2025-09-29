@@ -1,4 +1,4 @@
-package com.riakol.todojc.data.local
+package com.riakol.todojc.data.local.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -6,26 +6,22 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "tasks",
+    tableName = "sub_tasks",
     foreignKeys = [
         ForeignKey(
-            entity = GroupList::class,
+            entity = Task::class,
             parentColumns = ["id"],
-            childColumns = ["group_id"],
+            childColumns = ["task_id"],
             onDelete = ForeignKey.CASCADE
         )
     ]
 )
-data class Task(
+data class SubTask(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    @ColumnInfo(name = "task_name")
+    @ColumnInfo(name = "sub_task_name")
     val title: String,
-    @ColumnInfo(name = "task_description")
-    val description: String,
-    @ColumnInfo(name = "due_date")
-    val dueDate: Long,
     @ColumnInfo(name = "is_completed")
     val isCompleted: Boolean,
-    @ColumnInfo(name = "group_id")
-    val groupId: Int,
+    @ColumnInfo(name = "task_id")
+    val taskId: Int,
 )
