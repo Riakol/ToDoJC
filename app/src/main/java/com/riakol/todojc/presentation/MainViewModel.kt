@@ -79,12 +79,12 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun addGroup(name: String) {
+    fun addGroup(name: String, categoryId: Int) {
         viewModelScope.launch {
             val newGroup = Group(
                 id = 0,
                 name = name,
-                categoryId = 0
+                categoryId = categoryId
             )
             addGroupUseCase(newGroup)
         }

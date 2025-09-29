@@ -47,6 +47,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.room.ColumnInfo
 import com.riakol.todojc.domain.model.Category
 import com.riakol.todojc.domain.model.Group
 import com.riakol.todojc.presentation.MainViewModel
@@ -87,7 +88,7 @@ fun Main_screen(
                     }
                     IconButton(
                         onClick = {
-                            dialogState = DialogState.AddNewGroup
+                            dialogState = DialogState.AddNewUnassignedGroup
                         },
                     ) {
                         Icon(
@@ -157,8 +158,15 @@ fun Main_screen(
                     itemsState,
                     contentType = { item -> item.javaClass }
                 ) { item ->
-                    when(item) {
-                        is MainScreenItem.CategoryItem -> CategoryItemDropdownMenu(item.category)
+                    when (item) {
+                        is MainScreenItem.CategoryItem -> {
+                            CategoryItemDropdownMenu(
+                                item.category,
+                                onAddNewGroupClick = {
+                                    dialogState = DialogState.AddNewGroup(item.category.id)
+                                }
+                            )
+                        }
                         is MainScreenItem.GroupItem -> GroupItem(item.group)
                     }
                 }
@@ -179,12 +187,23 @@ fun Main_screen(
                 }
             )
         }
+
         is DialogState.RenameCategory -> TODO()
-        is DialogState.AddNewGroup -> {
-            AddNewGroupDialog(
+        is DialogState.AddNewUnassignedGroup -> {
+            AddNewGroup(
                 onDismiss = { dialogState = DialogState.None },
                 onConfirm = { groupName ->
                     viewModel.addUnassignedGroup(groupName)
+                    dialogState = DialogState.None
+                }
+            )
+        }
+
+        is DialogState.AddNewGroup -> {
+            AddNewGroup(
+                onDismiss = { dialogState = DialogState.None },
+                onConfirm = { groupName ->
+                    viewModel.addGroup(groupName, currentDialog.categoryId)
                     dialogState = DialogState.None
                 }
             )
@@ -193,7 +212,10 @@ fun Main_screen(
 }
 
 @Composable
-fun CategoryItemDropdownMenu(category: Category) {
+fun CategoryItemDropdownMenu(
+    category: Category,
+    onAddNewGroupClick: () -> Unit
+) {
     var isExpanded by remember { mutableStateOf(false) }
     val rotationAngle by animateFloatAsState(
         targetValue = if (isExpanded) 0f else 90f,
@@ -222,7 +244,7 @@ fun CategoryItemDropdownMenu(category: Category) {
                 category.name,
                 modifier = Modifier.weight(1f)
             )
-            if (isExpanded) CategoryItemOptions()
+            if (isExpanded) CategoryItemOptions(onAddGroupClick = onAddNewGroupClick)
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,
                 contentDescription = "Expand",
@@ -235,7 +257,15 @@ fun CategoryItemDropdownMenu(category: Category) {
             enter = expandVertically(),
             exit = shrinkVertically()
         ) {
-
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp)
+            ) {
+                category.groups.forEach {
+                    GroupItem(it)
+                }
+            }
         }
     }
 }
@@ -264,7 +294,7 @@ fun GroupItem(
 
 
 @Composable
-fun CategoryItemOptions() {
+fun CategoryItemOptions(onAddGroupClick: () -> Unit) {
     var isExpanded by remember { mutableStateOf(false) }
 
     Box {
@@ -298,7 +328,10 @@ fun CategoryItemOptions() {
                         contentDescription = "Add group"
                     )
                 },
-                onClick = { /* Do something... */ }
+                onClick = {
+                    onAddGroupClick()
+                    isExpanded = false
+                }
             )
         }
     }
@@ -344,7 +377,7 @@ fun AddNewCategoryDialog(
 }
 
 @Composable
-fun AddNewGroupDialog(
+fun AddNewGroup(
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit
 ) {
