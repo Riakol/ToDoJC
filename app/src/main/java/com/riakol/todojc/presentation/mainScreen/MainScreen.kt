@@ -47,6 +47,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import androidx.room.ColumnInfo
 import com.riakol.todojc.domain.model.Category
 import com.riakol.todojc.domain.model.Group
@@ -57,6 +58,7 @@ import com.riakol.todojs.R
 
 @Composable
 fun Main_screen(
+    navController: NavController,
     viewModel: MainViewModel
 ) {
     var dialogState by remember { mutableStateOf<DialogState>(DialogState.None) }
@@ -162,6 +164,9 @@ fun Main_screen(
                         is MainScreenItem.CategoryItem -> {
                             CategoryItemDropdownMenu(
                                 item.category,
+                                onGroupClick = {groupId ->
+                                    navController.navigate("group_screen/${groupId}")
+                                },
                                 onAddNewGroupClick = {
                                     dialogState = DialogState.AddNewGroup(item.category.id)
                                 }
@@ -169,11 +174,15 @@ fun Main_screen(
                         }
 
                         is MainScreenItem.GroupItem -> {
-                            GroupItem(item.group)
+                            GroupItem(
+                                item.group,
+                                onGroupClick = {groupId ->
+                                    navController.navigate("group_screen/${groupId}")
+                                }
+                            )
                         }
                     }
                 }
-
             }
         }
 
@@ -217,7 +226,8 @@ fun Main_screen(
 @Composable
 fun CategoryItemDropdownMenu(
     category: Category,
-    onAddNewGroupClick: () -> Unit
+    onAddNewGroupClick: () -> Unit,
+    onGroupClick: (Int) -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     val rotationAngle by animateFloatAsState(
@@ -274,10 +284,15 @@ fun CategoryItemDropdownMenu(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 16.dp)
+                        .padding(start = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     category.groups.forEach {
-                        GroupItem(it)
+                        GroupItem(
+                            it
+                        ) { groupId ->
+                            onGroupClick(groupId)
+                        }
                     }
                 }
             }
@@ -287,11 +302,13 @@ fun CategoryItemDropdownMenu(
 
 @Composable
 fun GroupItem(
-    group: Group
+    group: Group,
+    onGroupClick: (Int) -> Unit = {}
 ) {
     Text(
         text = group.name,
-        modifier = Modifier.padding(vertical = 8.dp))
+        modifier = Modifier.clickable { onGroupClick(group.id) }
+    )
 }
 
 

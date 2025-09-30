@@ -7,11 +7,19 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.riakol.todojc.data.local.dao.CategoryListDao
 import com.riakol.todojc.data.local.dao.GroupListDao
+import com.riakol.todojc.presentation.GroupScreen
 import com.riakol.todojc.presentation.MainViewModel
 import com.riakol.todojs.ui.theme.TodoJSTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,8 +38,45 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TodoJSTheme {
+                val navController = rememberNavController()
+
                 Scaffold(modifier = Modifier.fillMaxSize()) {
-                    Main_screen(viewModel)
+                    NavHost(
+                        navController = navController,
+                        startDestination = "main_screen",
+                        enterTransition = {
+                            slideInHorizontally(initialOffsetX = { fullWidth -> fullWidth })
+                        },
+                        exitTransition = {
+                            slideOutHorizontally(targetOffsetX = { fullWidth -> -fullWidth })
+                        },
+                        popEnterTransition = {
+                            slideInHorizontally(initialOffsetX = { fullWidth -> -fullWidth })
+                        },
+                        popExitTransition = {
+                            slideOutHorizontally(targetOffsetX = { fullWidth -> fullWidth })
+                        }
+                    ) {
+                        composable("main_screen") {
+                            Main_screen(
+                                navController,
+                                viewModel
+                            )
+                        }
+                        composable(
+                            "group_screen/{groupId}",
+                            arguments = listOf(navArgument("groupId") { type = NavType.IntType })
+                        ) {navBackStackEntry ->
+                            val groupId = navBackStackEntry.arguments?.getInt("groupId")
+                            if (groupId != null) {
+                                GroupScreen(
+                                    groupId = groupId,
+                                    navController = navController
+                                )
+                            }
+
+                        }
+                    }
                 }
             }
         }
