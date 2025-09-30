@@ -167,7 +167,10 @@ fun Main_screen(
                                 }
                             )
                         }
-                        is MainScreenItem.GroupItem -> GroupItem(item.group)
+
+                        is MainScreenItem.GroupItem -> {
+                            GroupItem(item.group)
+                        }
                     }
                 }
 
@@ -257,13 +260,25 @@ fun CategoryItemDropdownMenu(
             enter = expandVertically(),
             exit = shrinkVertically()
         ) {
-            Column(
+            Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp)
+                    .padding(start = 32.dp, top = 8.dp, bottom = 8.dp)
+                    .height(IntrinsicSize.Min),
             ) {
-                category.groups.forEach {
-                    GroupItem(it)
+                VerticalDivider(
+                    modifier = Modifier.fillMaxHeight(),
+                    thickness = 3.dp,
+                    color = Color.Gray
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp)
+                ) {
+                    category.groups.forEach {
+                        GroupItem(it)
+                    }
                 }
             }
         }
@@ -274,22 +289,9 @@ fun CategoryItemDropdownMenu(
 fun GroupItem(
     group: Group
 ) {
-    Row(
-        modifier = Modifier
-            .padding(start = 10.dp, top = 8.dp, bottom = 8.dp)
-            .height(IntrinsicSize.Min),
-
-        ) {
-        VerticalDivider(
-            modifier = Modifier.fillMaxHeight(),
-            thickness = 3.dp,
-            color = Color.Gray
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Text(
-            text = group.name,
-        )
-    }
+    Text(
+        text = group.name,
+        modifier = Modifier.padding(vertical = 8.dp))
 }
 
 
