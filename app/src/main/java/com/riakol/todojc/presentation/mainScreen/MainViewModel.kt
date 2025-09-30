@@ -1,4 +1,4 @@
-package com.riakol.todojc.presentation
+package com.riakol.todojc.presentation.mainScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,9 +8,7 @@ import com.riakol.todojc.domain.usecase.AddCategoryUseCase
 import com.riakol.todojc.domain.usecase.AddGroupUseCase
 import com.riakol.todojc.domain.usecase.GetCategoriesUseCase
 import com.riakol.todojc.domain.usecase.GetUnassignedGroupsUseCase
-import com.riakol.todojc.presentation.mainScreen.MainScreenItem
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -32,8 +30,7 @@ class MainViewModel @Inject constructor(
     val mainScreenItems: StateFlow<List<MainScreenItem>> = combine(
         categoriesFlow,
         unassignedGroupsFlow
-    ) {
-        categories, unassignedGroups ->
+    ) { categories, unassignedGroups ->
         val combinedList = mutableListOf<MainScreenItem>()
         combinedList.addAll(
             unassignedGroups.map {
@@ -49,7 +46,7 @@ class MainViewModel @Inject constructor(
 
     }.stateIn(
         viewModelScope,
-        SharingStarted.WhileSubscribed(5000L),
+        SharingStarted.Companion.WhileSubscribed(5000L),
         emptyList()
     )
 

@@ -51,7 +51,7 @@ import androidx.navigation.NavController
 import androidx.room.ColumnInfo
 import com.riakol.todojc.domain.model.Category
 import com.riakol.todojc.domain.model.Group
-import com.riakol.todojc.presentation.MainViewModel
+import com.riakol.todojc.presentation.mainScreen.MainViewModel
 import com.riakol.todojc.presentation.mainScreen.DialogState
 import com.riakol.todojc.presentation.mainScreen.MainScreenItem
 import com.riakol.todojs.R
@@ -164,7 +164,7 @@ fun Main_screen(
                         is MainScreenItem.CategoryItem -> {
                             CategoryItemDropdownMenu(
                                 item.category,
-                                onGroupClick = {groupId ->
+                                onGroupClick = { groupId ->
                                     navController.navigate("group_screen/${groupId}")
                                 },
                                 onAddNewGroupClick = {
@@ -176,7 +176,7 @@ fun Main_screen(
                         is MainScreenItem.GroupItem -> {
                             GroupItem(
                                 item.group,
-                                onGroupClick = {groupId ->
+                                onGroupClick = { groupId ->
                                     navController.navigate("group_screen/${groupId}")
                                 }
                             )
@@ -185,7 +185,6 @@ fun Main_screen(
                 }
             }
         }
-
     }
 
     when (val currentDialog = dialogState) {

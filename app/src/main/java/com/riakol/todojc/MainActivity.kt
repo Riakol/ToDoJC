@@ -19,8 +19,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.riakol.todojc.data.local.dao.CategoryListDao
 import com.riakol.todojc.data.local.dao.GroupListDao
-import com.riakol.todojc.presentation.GroupScreen
-import com.riakol.todojc.presentation.MainViewModel
+import com.riakol.todojc.presentation.groupScreen.GroupScreen
+import com.riakol.todojc.presentation.mainScreen.MainViewModel
 import com.riakol.todojs.ui.theme.TodoJSTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
