@@ -70,7 +70,6 @@ class MainActivity : ComponentActivity() {
                             val groupId = navBackStackEntry.arguments?.getInt("groupId")
                             if (groupId != null) {
                                 GroupScreen(
-                                    groupId = groupId,
                                     navController = navController
                                 )
                             }

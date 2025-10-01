@@ -16,7 +16,7 @@ import androidx.room.PrimaryKey
         )
     ]
 )
-data class Task(
+data class TaskList(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo(name = "task_name")
     val title: String,

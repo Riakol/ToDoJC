@@ -9,7 +9,7 @@ import androidx.room.PrimaryKey
     tableName = "sub_tasks",
     foreignKeys = [
         ForeignKey(
-            entity = Task::class,
+            entity = TaskList::class,
             parentColumns = ["id"],
             childColumns = ["task_id"],
             onDelete = ForeignKey.CASCADE

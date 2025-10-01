@@ -6,22 +6,24 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.riakol.todojc.data.local.dao.CategoryListDao
 import com.riakol.todojc.data.local.dao.GroupListDao
+import com.riakol.todojc.data.local.dao.TaskDao
 import com.riakol.todojc.data.local.entity.CategoryList
 import com.riakol.todojc.data.local.entity.GroupList
 import com.riakol.todojc.data.local.entity.SubTask
-import com.riakol.todojc.data.local.entity.Task
+import com.riakol.todojc.data.local.entity.TaskList
 
 @Database(
     entities = [
         CategoryList::class,
         GroupList::class,
-        Task::class,
+        TaskList::class,
         SubTask::class],
     version = 2
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun categoryListDao(): CategoryListDao
     abstract fun groupListDao(): GroupListDao
+    abstract fun taskListDao(): TaskDao
 
     companion object {
         @Volatile

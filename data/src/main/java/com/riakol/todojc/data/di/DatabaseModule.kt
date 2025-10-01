@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.riakol.todojc.data.local.dao.CategoryListDao
 import com.riakol.todojc.data.local.dao.GroupListDao
+import com.riakol.todojc.data.local.dao.TaskDao
 import com.riakol.todojc.data.local.database.AppDatabase
 import dagger.Module
 import dagger.Provides
@@ -35,5 +36,11 @@ object DatabaseModule {
     fun provideGroupDao(database: AppDatabase): GroupListDao {
         return database.groupListDao()
     }
+
+    @Provides
+    fun provideTaskDao(database: AppDatabase): TaskDao {
+        return database.taskListDao()
+    }
+
 
 }
