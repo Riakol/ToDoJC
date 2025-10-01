@@ -33,4 +33,8 @@ class GroupRepositoryImpl @Inject constructor(
         dao.addGroup(group.toGroupList())
     }
 
+    override fun getGroupById(groupId: Int): Flow<Group> {
+        return dao.getGroupById(groupId).map { groupList -> groupList.toGroup() }
+    }
+
 }

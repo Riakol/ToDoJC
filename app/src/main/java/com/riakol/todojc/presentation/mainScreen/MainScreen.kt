@@ -48,11 +48,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import androidx.room.ColumnInfo
 import com.riakol.todojc.domain.model.Category
 import com.riakol.todojc.domain.model.Group
 import com.riakol.todojc.presentation.mainScreen.MainViewModel
-import com.riakol.todojc.presentation.mainScreen.DialogState
+import com.riakol.todojc.presentation.mainScreen.DialogMainScreenState
 import com.riakol.todojc.presentation.mainScreen.MainScreenItem
 import com.riakol.todojs.R
 
@@ -61,7 +60,7 @@ fun Main_screen(
     navController: NavController,
     viewModel: MainViewModel
 ) {
-    var dialogState by remember { mutableStateOf<DialogState>(DialogState.None) }
+    var dialogState by remember { mutableStateOf<DialogMainScreenState>(DialogMainScreenState.None) }
     val itemsState by viewModel.mainScreenItems.collectAsStateWithLifecycle()
 
     Scaffold(
@@ -78,7 +77,7 @@ fun Main_screen(
                 ) {
                     Row(
                         modifier = Modifier.clickable {
-                            dialogState = DialogState.AddNewCategory
+                            dialogState = DialogMainScreenState.AddNewCategory
                         },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -90,7 +89,7 @@ fun Main_screen(
                     }
                     IconButton(
                         onClick = {
-                            dialogState = DialogState.AddNewUnassignedGroup
+                            dialogState = DialogMainScreenState.AddNewUnassignedGroup
                         },
                     ) {
                         Icon(
@@ -168,7 +167,7 @@ fun Main_screen(
                                     navController.navigate("group_screen/${groupId}")
                                 },
                                 onAddNewGroupClick = {
-                                    dialogState = DialogState.AddNewGroup(item.category.id)
+                                    dialogState = DialogMainScreenState.AddNewGroup(item.category.id)
                                 }
                             )
                         }
@@ -188,34 +187,34 @@ fun Main_screen(
     }
 
     when (val currentDialog = dialogState) {
-        is DialogState.None -> {}
-        is DialogState.AddNewCategory -> {
+        is DialogMainScreenState.None -> {}
+        is DialogMainScreenState.AddNewCategory -> {
             AddNewCategoryDialog(
-                onDismiss = { dialogState = DialogState.None },
+                onDismiss = { dialogState = DialogMainScreenState.None },
                 onConfirm = { newName ->
                     viewModel.addCategory(newName)
-                    dialogState = DialogState.None
+                    dialogState = DialogMainScreenState.None
                 }
             )
         }
 
-        is DialogState.RenameCategory -> TODO()
-        is DialogState.AddNewUnassignedGroup -> {
+        is DialogMainScreenState.RenameCategory -> TODO()
+        is DialogMainScreenState.AddNewUnassignedGroup -> {
             AddNewGroup(
-                onDismiss = { dialogState = DialogState.None },
+                onDismiss = { dialogState = DialogMainScreenState.None },
                 onConfirm = { groupName ->
                     viewModel.addUnassignedGroup(groupName)
-                    dialogState = DialogState.None
+                    dialogState = DialogMainScreenState.None
                 }
             )
         }
 
-        is DialogState.AddNewGroup -> {
+        is DialogMainScreenState.AddNewGroup -> {
             AddNewGroup(
-                onDismiss = { dialogState = DialogState.None },
+                onDismiss = { dialogState = DialogMainScreenState.None },
                 onConfirm = { groupName ->
                     viewModel.addGroup(groupName, currentDialog.categoryId)
-                    dialogState = DialogState.None
+                    dialogState = DialogMainScreenState.None
                 }
             )
         }

@@ -3,7 +3,10 @@ package com.riakol.todojc.presentation.groupScreen
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.riakol.todojc.domain.model.Group
 import com.riakol.todojc.domain.model.Task
+import com.riakol.todojc.domain.usecase.AddTaskUseCase
+import com.riakol.todojc.domain.usecase.GetGroupDetailsUseCase
 import com.riakol.todojc.domain.usecase.GetTasksUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -14,18 +17,24 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class GroupScreenViewModel @Inject constructor(
     private val getTasksUseCase: GetTasksUseCase,
-    private val savedStateHandle: SavedStateHandle
+    private val addTaskUseCase: AddTaskUseCase,
+    private val getGroupDetailsUseCase: GetGroupDetailsUseCase,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
     private val _tasks = MutableStateFlow<List<Task>>(emptyList())
     val tasks: StateFlow<List<Task>> = _tasks
+    private val _groupDetails  = MutableStateFlow<Group?>(null)
+    val groupDetails: StateFlow<Group?> = _groupDetails
+
+    private var currentGroupId: Int? = null
 
     init {
-        val groupId = savedStateHandle.get<Int>("groupId")
-
-        if (groupId != null) {
+        currentGroupId = savedStateHandle.get<Int>("groupId")
+        currentGroupId?.let { groupId ->
             loadTasks(groupId)
+            loadGroupDetails(groupId)
         }
-
     }
 
     private fun loadTasks(groupId: Int) {
@@ -35,4 +44,28 @@ class GroupScreenViewModel @Inject constructor(
             }
         }
     }
+
+    private fun loadGroupDetails(groupId: Int) {
+        viewModelScope.launch {
+            getGroupDetailsUseCase(groupId).collect { group ->
+                _groupDetails.value = group
+            }
+        }
+    }
+
+    fun addTask(title: String) {
+        currentGroupId?.let { groupId ->
+            viewModelScope.launch {
+                val newTask = Task(
+                    id = 0,
+                    title = title,
+                    description = "",
+                    dueDate = 0L,
+                    groupId = groupId
+                )
+                addTaskUseCase(newTask)
+            }
+        }
+    }
 }
+

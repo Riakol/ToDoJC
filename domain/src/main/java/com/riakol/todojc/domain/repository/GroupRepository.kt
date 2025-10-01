@@ -7,4 +7,5 @@ interface GroupRepository {
     fun getGroups(): Flow<List<Group>>
     fun getUnassignedGroups(): Flow<List<Group>>
     suspend fun addGroup(group: Group)
+    fun getGroupById(groupId: Int): Flow<Group>
 }

@@ -1,7 +1,9 @@
 package com.riakol.todojc.data.repository
 
 import com.riakol.todojc.data.local.dao.TaskDao
+import com.riakol.todojc.data.local.entity.TaskList
 import com.riakol.todojc.data.mapper.toTask
+import com.riakol.todojc.data.mapper.toTaskList
 import com.riakol.todojc.domain.model.Task
 import com.riakol.todojc.domain.repository.TaskRepository
 import jakarta.inject.Inject
@@ -18,7 +20,7 @@ class TaskRepositoryImpl @Inject constructor(
     }
 
     override suspend fun addTask(task: Task) {
-        TODO("Not yet implemented")
+        taskDao.addTask(task.toTaskList())
     }
 
     override suspend fun updateTask(task: Task) {

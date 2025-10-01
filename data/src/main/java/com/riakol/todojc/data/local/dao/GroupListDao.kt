@@ -16,6 +16,9 @@ interface GroupListDao {
     @Query("SELECT * FROM group_lists WHERE category_id IS NULL")
     fun getUnassignedGroups(): Flow<List<GroupList>>
 
+    @Query("SELECT * FROM group_lists WHERE id = :groupId")
+    fun getGroupById(groupId: Int): Flow<GroupList>
+
     @Insert
     suspend fun addGroup(groupList: GroupList)
 

@@ -21,11 +21,11 @@ data class TaskList(
     @ColumnInfo(name = "task_name")
     val title: String,
     @ColumnInfo(name = "task_description")
-    val description: String,
+    val description: String?,
     @ColumnInfo(name = "due_date")
-    val dueDate: Long,
+    val dueDate: Long?,
     @ColumnInfo(name = "is_completed")
-    val isCompleted: Boolean,
+    val isCompleted: Boolean = false,
     @ColumnInfo(name = "group_id")
     val groupId: Int,
 )
