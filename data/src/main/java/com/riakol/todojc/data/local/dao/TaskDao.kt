@@ -11,6 +11,9 @@ interface TaskDao {
     @Query("SELECT * FROM tasks WHERE group_id = :groupId")
     fun getTasksForGroup(groupId: Int): Flow<List<TaskList>>
 
+    @Query("SELECT * FROM tasks WHERE id = :taskId")
+    fun getTaskById(taskId: Int): Flow<TaskList>
+
     @Insert
     suspend fun addTask(task: TaskList)
 }

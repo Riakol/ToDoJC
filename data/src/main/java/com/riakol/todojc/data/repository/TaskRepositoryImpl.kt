@@ -19,6 +19,10 @@ class TaskRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun getTaskById(taskId: Int): Flow<Task> {
+        return taskDao.getTaskById(taskId).map { it.toTask() }
+    }
+
     override suspend fun addTask(task: Task) {
         taskDao.addTask(task.toTaskList())
     }

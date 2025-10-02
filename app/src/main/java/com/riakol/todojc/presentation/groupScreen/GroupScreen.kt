@@ -41,12 +41,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.riakol.todojc.domain.model.Task
 import com.riakol.todojs.R
 
 
 @Composable
 fun GroupScreen(
-//    groupId: Int,
     navController: NavController,
     viewModel: GroupScreenViewModel = hiltViewModel()
 ) {
@@ -113,7 +113,12 @@ fun GroupScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(tasksState) { task ->
-                    TaskCardItem(taskTitle = task.title)
+                    TaskCardItem(
+                        task = task,
+                        onTaskClick = { taskId ->
+                            navController.navigate("task_screen/${taskId}")
+                        }
+                    )
                 }
             }
         }
@@ -177,7 +182,10 @@ fun AddNewTaskDialog(
 }
 
 @Composable
-fun TaskCardItem(taskTitle: String) {
+fun TaskCardItem(
+    task: Task,
+    onTaskClick: (Int) -> Unit
+) {
     ElevatedCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -187,12 +195,12 @@ fun TaskCardItem(taskTitle: String) {
         ),
         modifier = Modifier
             .fillMaxWidth()
+            .clickable {
+                onTaskClick(task.id)
+            }
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable {
-                TODO()
-            }
+            verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
                 onClick = {}
@@ -206,7 +214,7 @@ fun TaskCardItem(taskTitle: String) {
 
             Column {
                 Text(
-                    text = "$taskTitle\n8 of 9",
+                    text = "${task.title}\n8 of 9",
                     modifier = Modifier.padding(16.dp),
                     textAlign = TextAlign.Start
                 )
