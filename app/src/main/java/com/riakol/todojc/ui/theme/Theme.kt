@@ -1,6 +1,5 @@
 package com.riakol.todojs.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -10,6 +9,14 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import com.riakol.todojc.ui.theme.GrayCard
+import com.riakol.todojc.ui.theme.Pink40
+import com.riakol.todojc.ui.theme.Pink80
+import com.riakol.todojc.ui.theme.Purple40
+import com.riakol.todojc.ui.theme.Purple80
+import com.riakol.todojc.ui.theme.PurpleGrey40
+import com.riakol.todojc.ui.theme.PurpleGrey80
+import com.riakol.todojc.ui.theme.White
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -18,9 +25,10 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
+    primary = White,
     secondary = PurpleGrey40,
-    tertiary = Pink40
+    tertiary = Pink40,
+    surfaceVariant = GrayCard
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
