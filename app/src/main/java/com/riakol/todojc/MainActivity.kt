@@ -1,6 +1,6 @@
 package com.riakol.todojc
 
-import Main_screen
+import com.riakol.todojc.presentation.mainScreen.Main_screen
 import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity

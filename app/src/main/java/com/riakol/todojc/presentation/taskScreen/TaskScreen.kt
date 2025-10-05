@@ -4,7 +4,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,6 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -28,7 +29,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,7 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -59,7 +58,7 @@ fun TaskScreen(
     var isAddStepEditing by remember { mutableStateOf(false) }
     var addStepText by remember { mutableStateOf("") }
     val addStepFocusRequester = remember { FocusRequester() }
-    var noteText by remember { mutableStateOf("") }
+    var noteText = rememberTextFieldState()
 
     val focusManager = LocalFocusManager.current
 
@@ -104,7 +103,71 @@ fun TaskScreen(
                     style = TextStyle(fontSize = 24.sp)
                 )
             }
-            Spacer(modifier = Modifier.height(16.dp))
+
+            if (isAddStepEditing) {
+                TextField(
+                    value = addStepText,
+                    onValueChange = { addStepText = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .padding(horizontal = 16.dp)
+                        .focusRequester(addStepFocusRequester),
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Outlined.Circle,
+                            contentDescription = "Input Icon"
+                        )
+                    },
+                    placeholder = {
+                        Text(text = "Add step")
+                    },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                    keyboardActions = KeyboardActions(
+                        onSend = {
+                            //LOGIC
+                            addStepText = ""
+                            isAddStepEditing = false
+                            focusManager.clearFocus()
+                        }
+                    ),
+                    singleLine = true,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Gray
+                    )
+                )
+                LaunchedEffect(Unit) {
+                    addStepFocusRequester.requestFocus()
+                }
+            } else {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .padding(horizontal = 24.dp, vertical = 16.dp)
+                        .clickable {
+                            isAddStepEditing = true
+                        },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add step",
+                        modifier = Modifier.padding(end = 20.dp)
+                    )
+                    Text(
+                        text = "Add step"
+                    )
+                }
+                HorizontalDivider(
+                    Modifier.padding(bottom = 20.dp, top = 10.dp),
+                    DividerDefaults.Thickness,
+                    DividerDefaults.color
+                )
+            }
 
             Column(
                 modifier = Modifier
@@ -112,71 +175,6 @@ fun TaskScreen(
                     .padding(horizontal = 24.dp, vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                if (isAddStepEditing) {
-                    TextField(
-                        value = addStepText,
-                        onValueChange = { addStepText = it },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-                            .padding(horizontal = 16.dp)
-                            .focusRequester(addStepFocusRequester),
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Outlined.Circle,
-                                contentDescription = "Input Icon"
-                            )
-                        },
-                        placeholder = {
-                            Text(text = "Add step")
-                        },
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                        keyboardActions = KeyboardActions(
-                            onSend = {
-                                //LOGIC
-                                addStepText = ""
-                                isAddStepEditing = false
-                                focusManager.clearFocus()
-                            }
-                        ),
-                        singleLine = true,
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Gray
-                        )
-                    )
-                    LaunchedEffect(Unit) {
-                        addStepFocusRequester.requestFocus()
-                    }
-                } else {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-                            .clickable {
-                                isAddStepEditing = true
-                            },
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Add step",
-                            modifier = Modifier.padding(end = 20.dp)
-                        )
-                        Text(
-                            text = "Add step"
-                        )
-                    }
-                }
-
-                HorizontalDivider(
-                    Modifier.padding(bottom = 20.dp, top = 10.dp),
-                    DividerDefaults.Thickness,
-                    DividerDefaults.color
-                )
-
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -197,13 +195,10 @@ fun TaskScreen(
                         .padding(vertical = 20.dp)
                 ) {
                     TextField(
-                        value = noteText,
-                        onValueChange = { noteText = it },
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        placeholder = {
-                            Text(text = "Add note")
-                        },
+                        state = noteText,
+                        lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 2),
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(text = "Add note") },
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.Transparent,
                             unfocusedContainerColor = Color.Transparent,
