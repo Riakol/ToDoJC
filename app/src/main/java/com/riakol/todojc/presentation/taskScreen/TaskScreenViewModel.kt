@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.riakol.todojc.domain.model.Task
-import com.riakol.todojc.domain.usecase.GetTaskDetailsUseCase
+import com.riakol.todojc.domain.usecase.task.GetTaskDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow

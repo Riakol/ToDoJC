@@ -4,10 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.riakol.todojc.domain.model.Category
 import com.riakol.todojc.domain.model.Group
-import com.riakol.todojc.domain.usecase.AddCategoryUseCase
-import com.riakol.todojc.domain.usecase.AddGroupUseCase
-import com.riakol.todojc.domain.usecase.GetCategoriesUseCase
-import com.riakol.todojc.domain.usecase.GetUnassignedGroupsUseCase
+import com.riakol.todojc.domain.usecase.category.AddCategoryUseCase
+import com.riakol.todojc.domain.usecase.group.AddGroupUseCase
+import com.riakol.todojc.domain.usecase.category.GetCategoriesUseCase
+import com.riakol.todojc.domain.usecase.group.GetUnassignedGroupsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

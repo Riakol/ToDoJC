@@ -5,9 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.riakol.todojc.domain.model.Group
 import com.riakol.todojc.domain.model.Task
-import com.riakol.todojc.domain.usecase.AddTaskUseCase
-import com.riakol.todojc.domain.usecase.GetGroupDetailsUseCase
-import com.riakol.todojc.domain.usecase.GetTasksUseCase
+import com.riakol.todojc.domain.usecase.task.AddTaskUseCase
+import com.riakol.todojc.domain.usecase.group.GetGroupDetailsUseCase
+import com.riakol.todojc.domain.usecase.task.GetTasksUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow

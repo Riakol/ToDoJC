@@ -2,9 +2,11 @@ package com.riakol.todojc.data.di
 
 import com.riakol.todojc.data.repository.CategoryRepositoryImpl
 import com.riakol.todojc.data.repository.GroupRepositoryImpl
+import com.riakol.todojc.data.repository.SubTaskRepositoryImpl
 import com.riakol.todojc.data.repository.TaskRepositoryImpl
 import com.riakol.todojc.domain.repository.CategoryRepository
 import com.riakol.todojc.domain.repository.GroupRepository
+import com.riakol.todojc.domain.repository.SubTaskRepository
 import com.riakol.todojc.domain.repository.TaskRepository
 import dagger.Binds
 import dagger.Module
@@ -33,5 +35,12 @@ abstract class RepositoryModule {
     abstract fun bindTaskRepository(
         taskRepositoryImpl: TaskRepositoryImpl
     ): TaskRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSubTaskRepository(
+        subTaskRepositoryImpl: SubTaskRepositoryImpl
+    ): SubTaskRepository
+
 
 }

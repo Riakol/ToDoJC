@@ -16,12 +16,12 @@ import androidx.room.PrimaryKey
         )
     ]
 )
-data class SubTask(
+data class SubTaskList(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo(name = "sub_task_name")
     val title: String,
     @ColumnInfo(name = "is_completed")
-    val isCompleted: Boolean,
+    val isCompleted: Boolean = false,
     @ColumnInfo(name = "task_id")
     val taskId: Int,
 )

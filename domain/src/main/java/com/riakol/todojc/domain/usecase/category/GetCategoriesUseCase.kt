@@ -1,4 +1,4 @@
-package com.riakol.todojc.domain.usecase
+package com.riakol.todojc.domain.usecase.category
 
 import com.riakol.todojc.domain.repository.CategoryRepository
 import jakarta.inject.Inject

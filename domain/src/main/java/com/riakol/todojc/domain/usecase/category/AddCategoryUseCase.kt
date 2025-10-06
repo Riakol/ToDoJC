@@ -1,4 +1,4 @@
-package com.riakol.todojc.domain.usecase
+package com.riakol.todojc.domain.usecase.category
 
 import com.riakol.todojc.domain.model.Category
 import com.riakol.todojc.domain.repository.CategoryRepository

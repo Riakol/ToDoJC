@@ -1,4 +1,4 @@
-package com.riakol.todojc.domain.usecase
+package com.riakol.todojc.domain.usecase.task
 
 import com.riakol.todojc.domain.model.Task
 import com.riakol.todojc.domain.repository.TaskRepository

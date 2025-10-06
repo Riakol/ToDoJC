@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -66,6 +67,7 @@ fun TaskScreen(
     var addStepText by remember { mutableStateOf("") }
     val addStepFocusRequester = remember { FocusRequester() }
     var noteText = rememberTextFieldState()
+    var addStepState = rememberTextFieldState()
 
     val focusManager = LocalFocusManager.current
 
@@ -109,6 +111,10 @@ fun TaskScreen(
                     text = taskDetails.value?.title ?: "Загрузка...",
                     style = TextStyle(fontSize = 24.sp)
                 )
+            }
+
+            LazyColumn {
+
             }
 
             if (isAddStepEditing) {
@@ -217,7 +223,6 @@ fun TaskScreen(
         }
     }
 }
-
 
 @Composable
 fun ActionCardItem(

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.riakol.todojc.data.local.dao.CategoryListDao
 import com.riakol.todojc.data.local.dao.GroupListDao
+import com.riakol.todojc.data.local.dao.SubTaskListDao
 import com.riakol.todojc.data.local.dao.TaskDao
 import com.riakol.todojc.data.local.database.AppDatabase
 import dagger.Module
@@ -42,5 +43,8 @@ object DatabaseModule {
         return database.taskListDao()
     }
 
-
+    @Provides
+    fun provideSubTaskDao(database: AppDatabase): SubTaskListDao {
+        return database.subTaskListDao()
+    }
 }
