@@ -1,7 +1,6 @@
 package com.riakol.todojc.data.repository
 
 import com.riakol.todojc.data.local.dao.TaskDao
-import com.riakol.todojc.data.local.entity.TaskList
 import com.riakol.todojc.data.mapper.toTask
 import com.riakol.todojc.data.mapper.toTaskList
 import com.riakol.todojc.domain.model.Task
@@ -19,8 +18,8 @@ class TaskRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getTaskById(taskId: Int): Flow<Task> {
-        return taskDao.getTaskById(taskId).map { it.toTask() }
+    override fun getTaskById(taskId: Int): Flow<Task?> {
+        return taskDao.getTaskById(taskId).map { it?.toTask() }
     }
 
     override suspend fun addTask(task: Task) {
@@ -34,5 +33,4 @@ class TaskRepositoryImpl @Inject constructor(
     override suspend fun deleteTask(task: Task) {
         TODO("Not yet implemented")
     }
-
 }

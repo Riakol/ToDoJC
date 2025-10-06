@@ -68,7 +68,6 @@ class MainActivity : ComponentActivity() {
                                     navController = navController
                                 )
                             }
-
                         }
                         composable(
                             "task_screen/{taskId}",

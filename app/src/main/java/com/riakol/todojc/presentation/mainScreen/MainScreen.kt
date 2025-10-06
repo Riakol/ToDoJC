@@ -11,6 +11,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -59,7 +62,7 @@ fun Main_screen(
                 itemsState,
                 navController,
                 onGroupClick = { groupId ->
-                    navController.navigate("task_screen/$groupId")
+                    navController.navigate("group_screen/$groupId")
                 },
                 onAddNewGroupInListClick = { categoryId ->
                     dialogState = DialogMainScreenState.AddNewGroup(categoryId)
@@ -127,11 +130,11 @@ private fun StaticActionList() {
             modifier = Modifier.clickable {}, verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.white_balance_sunny),
-                contentDescription = ""
+                imageVector = Icons.Default.FavoriteBorder,
+                contentDescription = "favorite"
             )
             Spacer(modifier = Modifier.width(10.dp))
-            Text("My Day")
+            Text("My Favourites")
         }
         Row(
             modifier = Modifier.clickable {}, verticalAlignment = Alignment.CenterVertically
@@ -176,7 +179,7 @@ private fun DynamicContentList(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 10.dp),
+            .padding(horizontal = 15.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(

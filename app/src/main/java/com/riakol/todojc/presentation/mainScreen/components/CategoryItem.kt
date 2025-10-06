@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.DensityMedium
 import androidx.compose.material.icons.filled.Update
 import androidx.compose.material3.DropdownMenu
@@ -85,79 +87,79 @@ fun CategoryItemOptions(onAddGroupClick: () -> Unit) {
     }
 }
 
-@Composable
-fun CategoryItemDropdownMenu(
-    category: Category,
-    onAddNewGroupClick: () -> Unit,
-    onGroupClick: (Int) -> Unit
-) {
-    var isExpanded by remember { mutableStateOf(false) }
-    val rotationAngle by animateFloatAsState(
-        targetValue = if (isExpanded) 0f else 90f,
-        label = "rotation"
-    )
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
+    @Composable
+    fun CategoryItemDropdownMenu(
+        category: Category,
+        onAddNewGroupClick: () -> Unit,
+        onGroupClick: (Int) -> Unit
     ) {
-        Row(
+        var isExpanded by remember { mutableStateOf(false) }
+        val rotationAngle by animateFloatAsState(
+            targetValue = if (isExpanded) 0f else 90f,
+            label = "rotation"
+        )
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { isExpanded = !isExpanded }
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (!isExpanded) {
-                Icon(
-                    painter = painterResource(id = R.drawable.card),
-                    contentDescription = "category icon"
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-            }
-            Text(
-                category.name,
-                modifier = Modifier.weight(1f)
-            )
-            if (isExpanded) CategoryItemOptions(onAddGroupClick = onAddNewGroupClick)
-            Icon(
-                imageVector = Icons.Default.ArrowDropDown,
-                contentDescription = "Expand",
-                modifier = Modifier.rotate(rotationAngle)
-            )
-        }
-
-        AnimatedVisibility(
-            visible = isExpanded,
-            enter = expandVertically(),
-            exit = shrinkVertically()
         ) {
             Row(
                 modifier = Modifier
-                    .padding(start = 32.dp, top = 8.dp, bottom = 8.dp)
-                    .height(IntrinsicSize.Min),
+                    .fillMaxWidth()
+                    .defaultMinSize(minHeight = 48.dp)
+                    .clickable { isExpanded = !isExpanded },
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                VerticalDivider(
-                    modifier = Modifier.fillMaxHeight(),
-                    thickness = 3.dp,
-                    color = Color.Gray
+                if (!isExpanded) {
+                    Icon(
+                        imageVector = Icons.Default.Category,
+                        contentDescription = "category icon"
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                Text(
+                    category.name,
+                    modifier = Modifier.weight(1f)
                 )
-                Spacer(modifier = Modifier.width(16.dp))
-                Column(
+                if (isExpanded) CategoryItemOptions(onAddGroupClick = onAddNewGroupClick)
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "Expand",
+                    modifier = Modifier.rotate(rotationAngle)
+                )
+            }
+
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                        .padding(start = 32.dp, top = 8.dp, bottom = 8.dp)
+                        .height(IntrinsicSize.Min),
                 ) {
-                    category.groups.forEach {
-                        GroupItem(
-                            it
-                        ) { groupId ->
-                            onGroupClick(groupId)
+                    VerticalDivider(
+                        modifier = Modifier.fillMaxHeight(),
+                        thickness = 3.dp,
+                        color = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .defaultMinSize(minHeight = 48.dp)
+                            .padding(start = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        category.groups.forEach {
+                            GroupItem(
+                                group = it
+                            ) { groupId ->
+                                onGroupClick(groupId)
+                            }
                         }
                     }
                 }
             }
         }
     }
-}

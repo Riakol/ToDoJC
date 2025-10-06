@@ -4,11 +4,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -17,9 +19,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddAlert
+import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DividerDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -147,17 +154,15 @@ fun TaskScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp)
-                        .padding(horizontal = 24.dp, vertical = 16.dp)
-                        .clickable {
-                            isAddStepEditing = true
-                        },
+                        .clickable { isAddStepEditing = true }
+                        .padding(horizontal = 24.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "Add step",
-                        modifier = Modifier.padding(end = 20.dp)
+                        contentDescription = "Add step"
                     )
+                    Spacer(modifier = Modifier.width(20.dp))
                     Text(
                         text = "Add step"
                     )
@@ -175,20 +180,21 @@ fun TaskScreen(
                     .padding(horizontal = 24.dp, vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.AddAlert,
-                        contentDescription = "Reminder",
-                        modifier = Modifier.padding(end = 20.dp)
-                    )
-                    Text(
-                        text = "Remind me"
-                    )
-                }
+                ActionCardItem(
+                    text = "Add to My Favourites",
+                    Icons.Default.WbSunny,
+                    onClick = {}
+                )
+                ActionCardItem(
+                    text = "Remind me",
+                    Icons.Default.AddAlert,
+                    onClick = {}
+                )
+                ActionCardItem(
+                    text = "Repeat",
+                    Icons.Default.Repeat,
+                    onClick = {}
+                )
                 Card(
                     modifier = Modifier
                         .fillMaxSize()
@@ -208,6 +214,31 @@ fun TaskScreen(
                     )
                 }
             }
+        }
+    }
+}
+
+
+@Composable
+fun ActionCardItem(
+    text: String,
+    icon: ImageVector,
+    onClick: () -> Unit
+) {
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = onClick,
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 4.dp
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(imageVector = icon, contentDescription = text)
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(text = text)
         }
     }
 }
