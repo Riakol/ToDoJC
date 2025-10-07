@@ -12,9 +12,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -63,12 +65,11 @@ fun TaskScreen(
     viewModel: TaskScreenViewModel = hiltViewModel()
 ) {
     val taskDetails = viewModel.taskDetails.collectAsStateWithLifecycle()
+    val subTasks = viewModel.subTasks.collectAsStateWithLifecycle()
     var isAddStepEditing by remember { mutableStateOf(false) }
     var addStepText by remember { mutableStateOf("") }
     val addStepFocusRequester = remember { FocusRequester() }
     var noteText = rememberTextFieldState()
-    var addStepState = rememberTextFieldState()
-
     val focusManager = LocalFocusManager.current
 
     Scaffold {
@@ -113,111 +114,148 @@ fun TaskScreen(
                 )
             }
 
-            LazyColumn {
-
-            }
-
-            if (isAddStepEditing) {
-                TextField(
-                    value = addStepText,
-                    onValueChange = { addStepText = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp)
-                        .padding(horizontal = 16.dp)
-                        .focusRequester(addStepFocusRequester),
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Outlined.Circle,
-                            contentDescription = "Input Icon"
-                        )
-                    },
-                    placeholder = {
-                        Text(text = "Add step")
-                    },
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                    keyboardActions = KeyboardActions(
-                        onSend = {
-                            //LOGIC
-                            addStepText = ""
-                            isAddStepEditing = false
-                            focusManager.clearFocus()
-                        }
-                    ),
-                    singleLine = true,
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Gray
-                    )
-                )
-                LaunchedEffect(Unit) {
-                    addStepFocusRequester.requestFocus()
-                }
-            } else {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp)
-                        .clickable { isAddStepEditing = true }
-                        .padding(horizontal = 24.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Add step"
-                    )
-                    Spacer(modifier = Modifier.width(20.dp))
-                    Text(
-                        text = "Add step"
-                    )
-                }
-                HorizontalDivider(
-                    Modifier.padding(bottom = 20.dp, top = 10.dp),
-                    DividerDefaults.Thickness,
-                    DividerDefaults.color
-                )
-            }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp, vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
             ) {
-                ActionCardItem(
-                    text = "Add to My Favourites",
-                    Icons.Default.WbSunny,
-                    onClick = {}
-                )
-                ActionCardItem(
-                    text = "Remind me",
-                    Icons.Default.AddAlert,
-                    onClick = {}
-                )
-                ActionCardItem(
-                    text = "Repeat",
-                    Icons.Default.Repeat,
-                    onClick = {}
-                )
-                Card(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(vertical = 20.dp)
-                ) {
-                    TextField(
-                        state = noteText,
-                        lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 2),
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text(text = "Add note") },
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent
+                items(subTasks.value) { subTask ->
+                    Column {
+                        TextField(
+                            value = subTask.title,
+                            onValueChange = { newText ->
+                                viewModel.onSubTaskChanged(subTask, newText)
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Outlined.Circle,
+                                    contentDescription = "Input Icon"
+                                )
+                            },
+                            trailingIcon = {
+                                Icon(
+                                    painterResource(R.drawable.more_vert_24px),
+                                    contentDescription = "options"
+                                )
+                            },
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent
+                            )
                         )
-                    )
+                        HorizontalDivider(
+                            modifier = Modifier.padding(start = 65.dp, end = 45.dp)
+                        )
+                    }
+                }
+                item {
+                    if (isAddStepEditing) {
+                        TextField(
+                            value = addStepText,
+                            onValueChange = { addStepText = it },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .padding(horizontal = 16.dp)
+                                .focusRequester(addStepFocusRequester),
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Outlined.Circle,
+                                    contentDescription = "Input Icon"
+                                )
+                            },
+                            placeholder = {
+                                Text(text = "Add step")
+                            },
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                            keyboardActions = KeyboardActions(
+                                onSend = {
+                                    viewModel.addSubtask(addStepText)
+                                    addStepText = ""
+                                    isAddStepEditing = false
+                                    focusManager.clearFocus()
+                                }
+                            ),
+                            singleLine = true,
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Gray
+                            )
+                        )
+                        LaunchedEffect(Unit) {
+                            addStepFocusRequester.requestFocus()
+                        }
+                    } else {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .clickable { isAddStepEditing = true }
+                                .padding(horizontal = 24.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Add step"
+                            )
+                            Spacer(modifier = Modifier.width(20.dp))
+                            Text(
+                                text = "Add step"
+                            )
+                        }
+                        HorizontalDivider(
+                            Modifier.padding(bottom = 20.dp, top = 10.dp),
+                            DividerDefaults.Thickness,
+                            DividerDefaults.color
+                        )
+                    }
+                }
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 24.dp, vertical = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        ActionCardItem(
+                            text = "Add to My Favourites",
+                            Icons.Default.WbSunny,
+                            onClick = {}
+                        )
+                        ActionCardItem(
+                            text = "Remind me",
+                            Icons.Default.AddAlert,
+                            onClick = {}
+                        )
+                        ActionCardItem(
+                            text = "Repeat",
+                            Icons.Default.Repeat,
+                            onClick = {}
+                        )
+                        Card(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(vertical = 20.dp)
+                        ) {
+                            TextField(
+                                state = noteText,
+                                lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 2),
+                                modifier = Modifier.fillMaxWidth(),
+                                label = { Text(text = "Add note") },
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = Color.Transparent,
+                                    unfocusedContainerColor = Color.Transparent,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent
+                                )
+                            )
+                        }
+                    }
                 }
             }
         }
