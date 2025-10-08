@@ -53,6 +53,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
@@ -64,6 +65,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.riakol.todojc.domain.model.SubTask
 import com.riakol.todojs.R
 
 @Composable
@@ -78,6 +80,7 @@ fun TaskScreen(
     val addStepFocusRequester = remember { FocusRequester() }
     var noteText = rememberTextFieldState()
     val focusManager = LocalFocusManager.current
+    var expandedSubTaskId by remember { mutableStateOf<Int?>(null) }
 
     Scaffold {
         Column(
@@ -124,65 +127,19 @@ fun TaskScreen(
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(subTasks.value) { subTask ->
-                    var isExpanded by remember { mutableStateOf(false) }
-
-                    Column {
-                        TextField(
-                            value = subTask.title,
-                            onValueChange = { newText ->
-                                viewModel.onSubTaskChanged(subTask, newText)
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp),
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Outlined.Circle,
-                                    contentDescription = "Input Icon"
-                                )
-                            },
-                            trailingIcon = {
-                                Box {
-                                    IconButton(
-                                        onClick = { isExpanded = true }
-                                    ) {
-                                        Icon(
-                                            painterResource(R.drawable.more_vert_24px),
-                                            contentDescription = "options"
-                                        )
-                                    }
-                                    DropdownMenu(
-                                        expanded = isExpanded,
-                                        onDismissRequest = { isExpanded = false },
-                                    ) {
-                                        DropdownMenuItem(
-                                            text = { Text("Delete step") },
-                                            leadingIcon = {
-                                                Icon(
-                                                    Icons.Default.DeleteForever,
-                                                    contentDescription = "Delete step"
-                                                )
-                                            },
-                                            onClick = {
-                                                viewModel.removeSubTask(subTask)
-                                                isExpanded = false
-                                            }
-                                        )
-                                    }
-                                }
-                            },
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent
-                            )
-                        )
-                        HorizontalDivider(
-                            modifier = Modifier.padding(start = 65.dp, end = 45.dp)
-                        )
-                    }
+                items(
+                    subTasks.value,
+                    key = { subTask -> subTask.id }
+                ) { subTask ->
+                    val focusManager = LocalFocusManager.current
+                    SubTaskItem(
+                        subTask = subTask,
+                        viewModel = viewModel,
+                        isExpanded = (subTask.id == expandedSubTaskId),
+                        onExpandClick = {
+                            expandedSubTaskId = if (subTask.id == expandedSubTaskId) null else subTask.id
+                        }
+                    )
                 }
                 item {
                     if (isAddStepEditing) {
@@ -206,7 +163,7 @@ fun TaskScreen(
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
                             keyboardActions = KeyboardActions(
                                 onSend = {
-                                    viewModel.addSubtask(addStepText)
+                                    if (addStepText.isNotBlank()) viewModel.addSubtask(addStepText)
                                     addStepText = ""
                                     isAddStepEditing = false
                                     focusManager.clearFocus()
@@ -318,3 +275,146 @@ fun ActionCardItem(
         }
     }
 }
+
+@Composable
+fun SubTaskItem(
+    subTask: SubTask,
+    viewModel: TaskScreenViewModel,
+    isExpanded: Boolean,
+    onExpandClick: () -> Unit
+) {
+    var isExpanded by remember { mutableStateOf(false) }
+    var text by remember { mutableStateOf(subTask.title) }
+    val focusManager = LocalFocusManager.current
+
+    Column(
+        modifier = Modifier.clickable(
+            onClick = onExpandClick
+        )
+    ) {
+        LaunchedEffect(subTask.title) {
+            if (text != subTask.title) {
+                text = subTask.title
+            }
+        }
+
+        TextField(
+            value = text,
+            onValueChange = { text = it },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .onFocusChanged { focusState ->
+                    if (!focusState.isFocused) {
+                        if (text.isBlank()) {
+                            viewModel.removeSubTask(subTask)
+                        } else if (text != subTask.title) {
+                            viewModel.onSubTaskChanged(subTask, text)
+                        }
+                    }
+                },
+            keyboardActions = KeyboardActions(
+                onSend = { focusManager.clearFocus() }
+            ),
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Outlined.Circle,
+                    contentDescription = "Input Icon"
+                )
+            },
+            trailingIcon = {
+                Box {
+                    IconButton(
+                        onClick = { isExpanded = true }
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.more_vert_24px),
+                            contentDescription = "options"
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = isExpanded,
+                        onDismissRequest = { isExpanded = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Delete step") },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.DeleteForever,
+                                    contentDescription = "Delete step"
+                                )
+                            },
+                            onClick = {
+                                viewModel.removeSubTask(subTask)
+                                isExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+        )
+    }
+}
+
+//TextField(
+//value = subTask.title,
+//onValueChange = { newText ->
+//    viewModel.onSubTaskChanged(subTask, newText)
+//},
+//modifier = Modifier
+//.fillMaxWidth()
+//.padding(horizontal = 16.dp)
+//.onFocusChanged { focusState ->
+//    if (!focusState.isFocused && subTask.title.isBlank()) {
+//        viewModel.removeSubTask(subTask)
+//    }
+//},
+//keyboardActions = KeyboardActions(
+//onSend = { focusManager.clearFocus() }
+//),
+//leadingIcon = {
+//    Icon(
+//        imageVector = Icons.Outlined.Circle,
+//        contentDescription = "Input Icon"
+//    )
+//},
+//trailingIcon = {
+//    Box {
+//        IconButton(
+//            onClick = { isExpanded = true }
+//        ) {
+//            Icon(
+//                painterResource(R.drawable.more_vert_24px),
+//                contentDescription = "options"
+//            )
+//        }
+//        DropdownMenu(
+//            expanded = isExpanded,
+//            onDismissRequest = { isExpanded = false },
+//        ) {
+//            DropdownMenuItem(
+//                text = { Text("Delete step") },
+//                leadingIcon = {
+//                    Icon(
+//                        Icons.Default.DeleteForever,
+//                        contentDescription = "Delete step"
+//                    )
+//                },
+//                onClick = {
+//                    viewModel.removeSubTask(subTask)
+//                    isExpanded = false
+//                }
+//            )
+//        }
+//    }
+//},
+//colors = TextFieldDefaults.colors(
+//focusedContainerColor = Color.Transparent,
+//unfocusedContainerColor = Color.Transparent,
+//focusedIndicatorColor = Color.Transparent,
+//unfocusedIndicatorColor = Color.Transparent
+//)
+//)
+//HorizontalDivider(
+//modifier = Modifier.padding(start = 65.dp, end = 45.dp)
+//)
