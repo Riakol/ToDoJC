@@ -2,6 +2,7 @@ package com.riakol.todojc.presentation.taskScreen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,12 +23,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddAlert
+import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.DensityMedium
 import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material.icons.filled.Update
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DividerDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -118,6 +125,8 @@ fun TaskScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(subTasks.value) { subTask ->
+                    var isExpanded by remember { mutableStateOf(false) }
+
                     Column {
                         TextField(
                             value = subTask.title,
@@ -134,10 +143,34 @@ fun TaskScreen(
                                 )
                             },
                             trailingIcon = {
-                                Icon(
-                                    painterResource(R.drawable.more_vert_24px),
-                                    contentDescription = "options"
-                                )
+                                Box {
+                                    IconButton(
+                                        onClick = { isExpanded = true }
+                                    ) {
+                                        Icon(
+                                            painterResource(R.drawable.more_vert_24px),
+                                            contentDescription = "options"
+                                        )
+                                    }
+                                    DropdownMenu(
+                                        expanded = isExpanded,
+                                        onDismissRequest = { isExpanded = false },
+                                    ) {
+                                        DropdownMenuItem(
+                                            text = { Text("Delete step") },
+                                            leadingIcon = {
+                                                Icon(
+                                                    Icons.Default.DeleteForever,
+                                                    contentDescription = "Delete step"
+                                                )
+                                            },
+                                            onClick = {
+                                                viewModel.removeSubTask(subTask)
+                                                isExpanded = false
+                                            }
+                                        )
+                                    }
+                                }
                             },
                             colors = TextFieldDefaults.colors(
                                 focusedContainerColor = Color.Transparent,

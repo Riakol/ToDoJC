@@ -7,6 +7,7 @@ import com.riakol.todojc.domain.model.SubTask
 import com.riakol.todojc.domain.model.Task
 import com.riakol.todojc.domain.usecase.subtask.AddSubTaskUseCase
 import com.riakol.todojc.domain.usecase.subtask.GetSubTasksUseCase
+import com.riakol.todojc.domain.usecase.subtask.RemoveSubTaskUseCase
 import com.riakol.todojc.domain.usecase.subtask.UpdateSubTaskUseCase
 import com.riakol.todojc.domain.usecase.task.GetTaskDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +22,7 @@ class TaskScreenViewModel @Inject constructor(
     private val getSubTasksUseCase: GetSubTasksUseCase,
     private val addSubTaskUseCase: AddSubTaskUseCase,
     private val updateSubTaskUseCase: UpdateSubTaskUseCase,
+    private val removeSubTaskUseCase: RemoveSubTaskUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _taskDetails = MutableStateFlow<Task?>(null)
@@ -57,6 +59,12 @@ class TaskScreenViewModel @Inject constructor(
     fun onSubTaskChanged(subtask: SubTask, newTitle: String) {
         viewModelScope.launch {
             updateSubTaskUseCase(subtask.copy(title = newTitle))
+        }
+    }
+
+    fun removeSubTask(subTask: SubTask) {
+        viewModelScope.launch {
+            removeSubTaskUseCase(subTask)
         }
     }
 }
