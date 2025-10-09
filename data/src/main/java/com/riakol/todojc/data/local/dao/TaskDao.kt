@@ -3,6 +3,7 @@ package com.riakol.todojc.data.local.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import com.riakol.todojc.data.local.entity.TaskList
 import kotlinx.coroutines.flow.Flow
 
@@ -16,4 +17,7 @@ interface TaskDao {
 
     @Insert
     suspend fun addTask(task: TaskList)
+
+    @Update
+    suspend fun updateTask(task: TaskList)
 }

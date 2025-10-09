@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -30,24 +32,31 @@ import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.Update
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.outlined.Circle
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -67,7 +76,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.riakol.todojc.domain.model.SubTask
 import com.riakol.todojs.R
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(
     navController: NavController,
@@ -75,182 +86,246 @@ fun TaskScreen(
 ) {
     val taskDetails = viewModel.taskDetails.collectAsStateWithLifecycle()
     val subTasks = viewModel.subTasks.collectAsStateWithLifecycle()
+    val noteText by viewModel.noteText.collectAsStateWithLifecycle()
+
     var isAddStepEditing by remember { mutableStateOf(false) }
     var addStepText by remember { mutableStateOf("") }
     val addStepFocusRequester = remember { FocusRequester() }
-    var noteText = rememberTextFieldState()
     val focusManager = LocalFocusManager.current
     var expandedSubTaskId by remember { mutableStateOf<Int?>(null) }
 
-    Scaffold {
-        Column(
+    val sheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
+    var showBottomSheet by remember { mutableStateOf(false) }
+
+    Scaffold(
+        bottomBar = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(80.dp)
+                    .padding(horizontal = 20.dp, vertical = 8.dp),
+            ) {
+                Card(
+                    shape = RoundedCornerShape(24.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            showBottomSheet = true
+                        },
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    Text(
+                        text = if (noteText.isEmpty()) {
+                            "Add note"
+                        } else {
+                            "Tap to view"
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    )
+                }
+            }
+        }
+    ) {
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(it)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(
-                    onClick = { navController.navigateUp() }
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back"
+                    IconButton(
+                        onClick = { navController.navigateUp() }
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                    Text(
+                        modifier = Modifier.padding(start = 8.dp),
+                        text = "Here name of group"
                     )
                 }
-                Text(
-                    modifier = Modifier.padding(start = 8.dp),
-                    text = "Here name of group"
-                )
             }
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(
-                    onClick = {}
+
+            item {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.circle_outline),
-                        contentDescription = "Task status",
-                        modifier = Modifier.size(32.dp)
+                    IconButton(
+                        onClick = {}
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.circle_outline),
+                            contentDescription = "Task status",
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+                    Text(
+                        text = taskDetails.value?.title ?: "Загрузка...",
+                        style = TextStyle(fontSize = 24.sp)
                     )
                 }
-                Text(
-                    text = taskDetails.value?.title ?: "Загрузка...",
-                    style = TextStyle(fontSize = 24.sp)
+            }
+
+            items(
+                subTasks.value,
+                key = { subTask -> subTask.id }
+            ) { subTask ->
+                val focusManager = LocalFocusManager.current
+                SubTaskItem(
+                    subTask = subTask,
+                    viewModel = viewModel,
+                    isExpanded = (subTask.id == expandedSubTaskId),
+                    onExpandClick = {
+                        expandedSubTaskId =
+                            if (subTask.id == expandedSubTaskId) null else subTask.id
+                    }
                 )
             }
 
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(
-                    subTasks.value,
-                    key = { subTask -> subTask.id }
-                ) { subTask ->
-                    val focusManager = LocalFocusManager.current
-                    SubTaskItem(
-                        subTask = subTask,
-                        viewModel = viewModel,
-                        isExpanded = (subTask.id == expandedSubTaskId),
-                        onExpandClick = {
-                            expandedSubTaskId = if (subTask.id == expandedSubTaskId) null else subTask.id
-                        }
+            item {
+                if (isAddStepEditing) {
+                    TextField(
+                        value = addStepText,
+                        onValueChange = { addStepText = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                            .padding(horizontal = 16.dp)
+                            .focusRequester(addStepFocusRequester),
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Outlined.Circle,
+                                contentDescription = "Input Icon"
+                            )
+                        },
+                        placeholder = {
+                            Text(text = "Add step")
+                        },
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                        keyboardActions = KeyboardActions(
+                            onSend = {
+                                if (addStepText.isNotBlank()) viewModel.addSubtask(
+                                    addStepText
+                                )
+                                addStepText = ""
+                                isAddStepEditing = false
+                                focusManager.clearFocus()
+                            }
+                        ),
+                        singleLine = true,
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Gray
+                        )
+                    )
+                    LaunchedEffect(Unit) {
+                        addStepFocusRequester.requestFocus()
+                    }
+                } else {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                            .clickable { isAddStepEditing = true }
+                            .padding(horizontal = 24.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add step"
+                        )
+                        Spacer(modifier = Modifier.width(20.dp))
+                        Text(
+                            text = "Add step"
+                        )
+                    }
+                }
+            }
+            item {
+                HorizontalDivider(
+                    Modifier.padding(bottom = 20.dp, top = 10.dp),
+                    DividerDefaults.Thickness,
+                    DividerDefaults.color
+                )
+            }
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 24.dp, vertical = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    ActionCardItem(
+                        text = "Add to My Favourites",
+                        Icons.Default.WbSunny,
+                        onClick = {}
+                    )
+                    ActionCardItem(
+                        text = "Remind me",
+                        Icons.Default.AddAlert,
+                        onClick = {}
+                    )
+                    ActionCardItem(
+                        text = "Repeat",
+                        Icons.Default.Repeat,
+                        onClick = {}
                     )
                 }
-                item {
-                    if (isAddStepEditing) {
-                        TextField(
-                            value = addStepText,
-                            onValueChange = { addStepText = it },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp)
-                                .padding(horizontal = 16.dp)
-                                .focusRequester(addStepFocusRequester),
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Outlined.Circle,
-                                    contentDescription = "Input Icon"
-                                )
-                            },
-                            placeholder = {
-                                Text(text = "Add step")
-                            },
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                            keyboardActions = KeyboardActions(
-                                onSend = {
-                                    if (addStepText.isNotBlank()) viewModel.addSubtask(addStepText)
-                                    addStepText = ""
-                                    isAddStepEditing = false
-                                    focusManager.clearFocus()
-                                }
-                            ),
-                            singleLine = true,
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Gray
-                            )
-                        )
-                        LaunchedEffect(Unit) {
-                            addStepFocusRequester.requestFocus()
+            }
+        }
+    }
+
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                viewModel.saveNote()
+                showBottomSheet = false
+            },
+            sheetState = sheetState
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            )
+            {
+                Text("Add note", style = MaterialTheme.typography.titleLarge)
+                Spacer(modifier = Modifier.height(16.dp))
+                TextField(
+                    value = noteText,
+                    onValueChange = { viewModel.onNoteTextChanged(it) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    placeholder = { Text("Write your note here...") }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = {
+                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                showBottomSheet = false
+                            }
                         }
-                    } else {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp)
-                                .clickable { isAddStepEditing = true }
-                                .padding(horizontal = 24.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = "Add step"
-                            )
-                            Spacer(modifier = Modifier.width(20.dp))
-                            Text(
-                                text = "Add step"
-                            )
-                        }
-                        HorizontalDivider(
-                            Modifier.padding(bottom = 20.dp, top = 10.dp),
-                            DividerDefaults.Thickness,
-                            DividerDefaults.color
-                        )
-                    }
-                }
-                item {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 24.dp, vertical = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        ActionCardItem(
-                            text = "Add to My Favourites",
-                            Icons.Default.WbSunny,
-                            onClick = {}
-                        )
-                        ActionCardItem(
-                            text = "Remind me",
-                            Icons.Default.AddAlert,
-                            onClick = {}
-                        )
-                        ActionCardItem(
-                            text = "Repeat",
-                            Icons.Default.Repeat,
-                            onClick = {}
-                        )
-                        Card(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(vertical = 20.dp)
-                        ) {
-                            TextField(
-                                state = noteText,
-                                lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 2),
-                                modifier = Modifier.fillMaxWidth(),
-                                label = { Text(text = "Add note") },
-                                colors = TextFieldDefaults.colors(
-                                    focusedContainerColor = Color.Transparent,
-                                    unfocusedContainerColor = Color.Transparent,
-                                    focusedIndicatorColor = Color.Transparent,
-                                    unfocusedIndicatorColor = Color.Transparent
-                                )
-                            )
-                        }
-                    }
+                    },
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    Text("Save")
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun ActionCardItem(
@@ -351,70 +426,16 @@ fun SubTaskItem(
                         )
                     }
                 }
-            }
+            },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            )
+        )
+        HorizontalDivider(
+            modifier = Modifier.padding(start = 65.dp, end = 45.dp)
         )
     }
 }
-
-//TextField(
-//value = subTask.title,
-//onValueChange = { newText ->
-//    viewModel.onSubTaskChanged(subTask, newText)
-//},
-//modifier = Modifier
-//.fillMaxWidth()
-//.padding(horizontal = 16.dp)
-//.onFocusChanged { focusState ->
-//    if (!focusState.isFocused && subTask.title.isBlank()) {
-//        viewModel.removeSubTask(subTask)
-//    }
-//},
-//keyboardActions = KeyboardActions(
-//onSend = { focusManager.clearFocus() }
-//),
-//leadingIcon = {
-//    Icon(
-//        imageVector = Icons.Outlined.Circle,
-//        contentDescription = "Input Icon"
-//    )
-//},
-//trailingIcon = {
-//    Box {
-//        IconButton(
-//            onClick = { isExpanded = true }
-//        ) {
-//            Icon(
-//                painterResource(R.drawable.more_vert_24px),
-//                contentDescription = "options"
-//            )
-//        }
-//        DropdownMenu(
-//            expanded = isExpanded,
-//            onDismissRequest = { isExpanded = false },
-//        ) {
-//            DropdownMenuItem(
-//                text = { Text("Delete step") },
-//                leadingIcon = {
-//                    Icon(
-//                        Icons.Default.DeleteForever,
-//                        contentDescription = "Delete step"
-//                    )
-//                },
-//                onClick = {
-//                    viewModel.removeSubTask(subTask)
-//                    isExpanded = false
-//                }
-//            )
-//        }
-//    }
-//},
-//colors = TextFieldDefaults.colors(
-//focusedContainerColor = Color.Transparent,
-//unfocusedContainerColor = Color.Transparent,
-//focusedIndicatorColor = Color.Transparent,
-//unfocusedIndicatorColor = Color.Transparent
-//)
-//)
-//HorizontalDivider(
-//modifier = Modifier.padding(start = 65.dp, end = 45.dp)
-//)

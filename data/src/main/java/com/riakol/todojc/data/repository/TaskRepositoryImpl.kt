@@ -27,7 +27,7 @@ class TaskRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateTask(task: Task) {
-        TODO("Not yet implemented")
+        taskDao.updateTask(task.toTaskList())
     }
 
     override suspend fun deleteTask(task: Task) {
