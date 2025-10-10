@@ -6,5 +6,6 @@ data class Task(
     val description: String?,
     val dueDate: Long?,
     val isCompleted: Boolean = false,
-    val groupId: Int
+    val groupId: Int,
+    val subTasks: List<SubTask> = emptyList()
 )

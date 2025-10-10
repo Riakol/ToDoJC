@@ -13,8 +13,8 @@ class TaskRepositoryImpl @Inject constructor(
     private val taskDao: TaskDao
 ) : TaskRepository {
     override fun getTasksForGroup(groupId: Int): Flow<List<Task>> {
-        return taskDao.getTasksForGroup(groupId).map { taskList ->
-            taskList.map { it.toTask() }
+        return taskDao.getTasksWithSubTasks(groupId).map { listOfTasksWithSubTasks  ->
+            listOfTasksWithSubTasks.map { it.toTask() }
         }
     }
 

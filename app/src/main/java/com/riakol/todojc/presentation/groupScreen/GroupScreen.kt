@@ -195,6 +195,9 @@ fun TaskCardItem(
     onTaskClick: (Int) -> Unit,
     onToggleClick: () -> Unit
 ) {
+    val completedCount = task.subTasks.count { it.isCompleted }
+    val totalSubTasks = task.subTasks.size
+
     ElevatedCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -233,7 +236,7 @@ fun TaskCardItem(
 
             Column {
                 Text(
-                    text = "${task.title}\n8 of 9",
+                    text = "${task.title}\n ${if (totalSubTasks > 0) "$completedCount of $totalSubTasks" else ""}",
                     modifier = Modifier.padding(16.dp),
                     textAlign = TextAlign.Start,
                     textDecoration = if (task.isCompleted) TextDecoration.LineThrough else TextDecoration.None

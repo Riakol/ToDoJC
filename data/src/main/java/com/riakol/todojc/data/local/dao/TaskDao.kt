@@ -3,8 +3,11 @@ package com.riakol.todojc.data.local.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import com.riakol.todojc.data.local.entity.TaskList
+import com.riakol.todojc.data.local.relations.CategoryWithGroups
+import com.riakol.todojc.data.local.relations.TaskWithSubTasks
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -20,4 +23,8 @@ interface TaskDao {
 
     @Update
     suspend fun updateTask(task: TaskList)
+
+    @Transaction
+    @Query("SELECT * FROM tasks WHERE group_id = :groupId")
+    fun getTasksWithSubTasks(groupId: Int): Flow<List<TaskWithSubTasks>>
 }
