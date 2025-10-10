@@ -8,6 +8,7 @@ import com.riakol.todojc.domain.model.Task
 import com.riakol.todojc.domain.usecase.task.AddTaskUseCase
 import com.riakol.todojc.domain.usecase.group.GetGroupDetailsUseCase
 import com.riakol.todojc.domain.usecase.task.GetTasksUseCase
+import com.riakol.todojc.domain.usecase.task.UpdateTaskUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +20,7 @@ class GroupScreenViewModel @Inject constructor(
     private val getTasksUseCase: GetTasksUseCase,
     private val addTaskUseCase: AddTaskUseCase,
     private val getGroupDetailsUseCase: GetGroupDetailsUseCase,
+    private val updateTaskUseCase: UpdateTaskUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -65,6 +67,13 @@ class GroupScreenViewModel @Inject constructor(
                 )
                 addTaskUseCase(newTask)
             }
+        }
+    }
+
+    fun toggleTaskCompletion(task: Task) {
+        viewModelScope.launch {
+            val updatedTask = task.copy(isCompleted = !task.isCompleted)
+            updateTaskUseCase(updatedTask)
         }
     }
 }

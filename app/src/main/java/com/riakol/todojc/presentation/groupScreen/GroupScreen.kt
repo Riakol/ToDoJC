@@ -16,6 +16,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.DensityMedium
+import androidx.compose.material.icons.outlined.ChangeCircle
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -37,9 +40,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.riakol.todojc.domain.model.Task
 import com.riakol.todojs.R
@@ -117,6 +122,9 @@ fun GroupScreen(
                         task = task,
                         onTaskClick = { taskId ->
                             navController.navigate("task_screen/${taskId}")
+                        },
+                        onToggleClick = {
+                            viewModel.toggleTaskCompletion(task)
                         }
                     )
                 }
@@ -184,7 +192,8 @@ fun AddNewTaskDialog(
 @Composable
 fun TaskCardItem(
     task: Task,
-    onTaskClick: (Int) -> Unit
+    onTaskClick: (Int) -> Unit,
+    onToggleClick: () -> Unit
 ) {
     ElevatedCard(
         colors = CardDefaults.cardColors(
@@ -203,20 +212,31 @@ fun TaskCardItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
-                onClick = {}
+                onClick = {
+                    onToggleClick()
+                }
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.circle_outline),
-                    contentDescription = "Task status",
-                    modifier = Modifier.size(24.dp)
-                )
+                if (task.isCompleted) {
+                    Icon(
+                        imageVector = Icons.Outlined.CheckCircle,
+                        contentDescription = "Task status",
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Outlined.Circle,
+                        contentDescription = "Task status",
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
 
             Column {
                 Text(
                     text = "${task.title}\n8 of 9",
                     modifier = Modifier.padding(16.dp),
-                    textAlign = TextAlign.Start
+                    textAlign = TextAlign.Start,
+                    textDecoration = if (task.isCompleted) TextDecoration.LineThrough else TextDecoration.None
                 )
             }
         }
