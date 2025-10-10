@@ -79,6 +79,7 @@ fun TaskScreen(
     viewModel: TaskScreenViewModel = hiltViewModel()
 ) {
     val taskDetails = viewModel.taskDetails.collectAsStateWithLifecycle()
+    val groupDetails by viewModel.groupDetails.collectAsStateWithLifecycle()
     val subTasks = viewModel.subTasks.collectAsStateWithLifecycle()
     val noteText by viewModel.noteText.collectAsStateWithLifecycle()
 
@@ -144,7 +145,7 @@ fun TaskScreen(
                     }
                     Text(
                         modifier = Modifier.padding(start = 8.dp),
-                        text = "Here name of group"
+                        text = groupDetails?.name ?: ""
                     )
                 }
             }

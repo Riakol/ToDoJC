@@ -62,7 +62,7 @@ class GroupScreenViewModel @Inject constructor(
                     id = 0,
                     title = title,
                     description = "",
-                    dueDate = 0L,
+                    creationDate = 0L,
                     groupId = groupId
                 )
                 addTaskUseCase(newTask)

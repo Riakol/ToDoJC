@@ -3,8 +3,10 @@ package com.riakol.todojc.presentation.taskScreen
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.riakol.todojc.domain.model.Group
 import com.riakol.todojc.domain.model.SubTask
 import com.riakol.todojc.domain.model.Task
+import com.riakol.todojc.domain.usecase.group.GetGroupDetailsUseCase
 import com.riakol.todojc.domain.usecase.subtask.AddSubTaskUseCase
 import com.riakol.todojc.domain.usecase.subtask.GetSubTasksUseCase
 import com.riakol.todojc.domain.usecase.subtask.RemoveSubTaskUseCase
@@ -15,6 +17,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
 @HiltViewModel
@@ -25,36 +29,47 @@ class TaskScreenViewModel @Inject constructor(
     private val updateSubTaskUseCase: UpdateSubTaskUseCase,
     private val removeSubTaskUseCase: RemoveSubTaskUseCase,
     private val updateTaskUseCase: UpdateTaskUseCase,
+    private val getGroupDetailsUseCase: GetGroupDetailsUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _taskDetails = MutableStateFlow<Task?>(null)
     val taskDetails: StateFlow<Task?> = _taskDetails
+
     private val _subTasks = MutableStateFlow<List<SubTask>>(emptyList())
     val subTasks: StateFlow<List<SubTask>> = _subTasks
+
     private val _noteText = MutableStateFlow("")
     val noteText: StateFlow<String> = _noteText
 
-    init {
-        savedStateHandle.get<Int>("taskId")?.let { taskId ->
-            loadTaskDetails(taskId)
-            viewModelScope.launch {
-                getSubTasksUseCase.invoke(taskId).collect { subTasks ->
-                    _subTasks.value = subTasks
-                }
-            }
-        }
-    }
+    private val _groupDetails = MutableStateFlow<Group?>(null)
+    val groupDetails: StateFlow<Group?> = _groupDetails
 
-    private fun loadTaskDetails(taskId: Int) {
-        viewModelScope.launch {
-            getTaskDetailsUseCase(taskId).collect { task ->
-                _taskDetails.value = task
-                if (task != null) {
-                    _noteText.value = task.description ?: ""
+        init {
+            savedStateHandle.get<Int>("taskId")?.let { taskId ->
+                viewModelScope.launch {
+                    getTaskDetailsUseCase(taskId)
+                        .flatMapLatest { task ->
+                            _taskDetails.value = task
+                            _noteText.value = task?.description ?: ""
+
+                            if (task != null) {
+                                getGroupDetailsUseCase(task.groupId)
+                            } else {
+                                flowOf(null)
+                            }
+                        }
+                        .collect { group ->
+                            _groupDetails.value = group
+                        }
+                }
+
+                viewModelScope.launch {
+                    getSubTasksUseCase(taskId).collect { subTasks ->
+                        _subTasks.value = subTasks
+                    }
                 }
             }
         }
-    }
 
     fun saveNote() {
         viewModelScope.launch {
@@ -66,13 +81,15 @@ class TaskScreenViewModel @Inject constructor(
     }
 
     fun addSubtask(subtask: String) {
-        viewModelScope.launch {
-            val newSubtask = SubTask(
-                id = 0,
-                title = subtask,
-                taskId = taskDetails.value?.id ?: 0
-            )
-            addSubTaskUseCase(newSubtask)
+        _taskDetails.value?.id?.let { taskId ->
+            viewModelScope.launch {
+                val newSubtask = SubTask(
+                    id = 0,
+                    title = subtask,
+                    taskId = taskId
+                )
+                addSubTaskUseCase(newSubtask)
+            }
         }
     }
 

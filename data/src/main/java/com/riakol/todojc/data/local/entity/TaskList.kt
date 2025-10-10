@@ -22,8 +22,8 @@ data class TaskList(
     val title: String,
     @ColumnInfo(name = "task_description")
     val description: String?,
-    @ColumnInfo(name = "due_date")
-    val dueDate: Long?,
+    @ColumnInfo(name = "creation_date")
+    val creationDate: Long,
     @ColumnInfo(name = "is_completed")
     val isCompleted: Boolean = false,
     @ColumnInfo(name = "group_id")
