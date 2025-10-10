@@ -26,6 +26,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddAlert
 import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.DensityMedium
 import androidx.compose.material.icons.filled.Repeat
@@ -65,10 +66,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -77,6 +80,7 @@ import androidx.navigation.NavController
 import com.riakol.todojc.domain.model.SubTask
 import com.riakol.todojs.R
 import kotlinx.coroutines.launch
+import org.w3c.dom.Text
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -376,6 +380,9 @@ fun SubTaskItem(
         TextField(
             value = text,
             onValueChange = { text = it },
+            textStyle = TextStyle(
+                textDecoration = if (subTask.isCompleted) TextDecoration.LineThrough else TextDecoration.None
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
@@ -392,10 +399,19 @@ fun SubTaskItem(
                 onSend = { focusManager.clearFocus() }
             ),
             leadingIcon = {
-                Icon(
-                    imageVector = Icons.Outlined.Circle,
-                    contentDescription = "Input Icon"
-                )
+                IconButton(onClick = { viewModel.toggleCompletion(subTask) }) {
+                    if (subTask.isCompleted) {
+                        Icon(
+                            imageVector = Icons.Filled.CheckCircle,
+                            contentDescription = "Mark as incomplete"
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Outlined.Circle,
+                            contentDescription = "Mark as complete"
+                        )
+                    }
+                }
             },
             trailingIcon = {
                 Box {

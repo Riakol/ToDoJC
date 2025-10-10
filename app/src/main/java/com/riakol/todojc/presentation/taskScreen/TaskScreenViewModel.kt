@@ -91,4 +91,11 @@ class TaskScreenViewModel @Inject constructor(
     fun onNoteTextChanged(newNote: String) {
         _noteText.value = newNote
     }
+
+    fun toggleCompletion(subTask: SubTask) {
+        viewModelScope.launch {
+            val updatedSubTask = subTask.copy(isCompleted = !subTask.isCompleted)
+            updateSubTaskUseCase(updatedSubTask)
+        }
+    }
 }
