@@ -147,6 +147,14 @@ fun TaskScreen(
                         modifier = Modifier.padding(start = 8.dp),
                         text = groupDetails?.name ?: ""
                     )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(
+                        text = taskDetails.value?.let { task ->
+                            formatTimestamp(task.creationDate)
+                        } ?: "",
+                        modifier = Modifier.padding(end = 16.dp)
+
+                    )
                 }
             }
 
