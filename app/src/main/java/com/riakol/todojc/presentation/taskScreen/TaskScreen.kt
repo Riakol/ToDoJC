@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,22 +17,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.TextFieldLineLimits
-import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddAlert
-import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DeleteForever
-import androidx.compose.material.icons.filled.DensityMedium
 import androidx.compose.material.icons.filled.Repeat
-import androidx.compose.material.icons.filled.Update
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.outlined.Circle
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -66,7 +58,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -80,7 +71,6 @@ import androidx.navigation.NavController
 import com.riakol.todojc.domain.model.SubTask
 import com.riakol.todojs.R
 import kotlinx.coroutines.launch
-import org.w3c.dom.Text
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -164,17 +154,26 @@ fun TaskScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(
-                        onClick = {}
+                        onClick = { viewModel.toggleTaskCompletion(taskDetails.value!!) }
                     ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.circle_outline),
-                            contentDescription = "Task status",
-                            modifier = Modifier.size(32.dp)
-                        )
+                        if (taskDetails.value?.isCompleted == true) {
+                            Icon(
+                                imageVector = Icons.Default.CheckCircle,
+                                contentDescription = "Task status",
+                                modifier = Modifier.size(32.dp)
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Outlined.Circle,
+                                contentDescription = "Task status",
+                                modifier = Modifier.size(32.dp)
+                            )
+                        }
                     }
                     Text(
                         text = taskDetails.value?.title ?: "Загрузка...",
-                        style = TextStyle(fontSize = 24.sp)
+                        style = TextStyle(fontSize = 24.sp),
+                        textDecoration = if (taskDetails.value?.isCompleted == true) TextDecoration.LineThrough else TextDecoration.None
                     )
                 }
             }
@@ -399,7 +398,7 @@ fun SubTaskItem(
                 onSend = { focusManager.clearFocus() }
             ),
             leadingIcon = {
-                IconButton(onClick = { viewModel.toggleCompletion(subTask) }) {
+                IconButton(onClick = { viewModel.toggleSubTaskCompletion(subTask) }) {
                     if (subTask.isCompleted) {
                         Icon(
                             imageVector = Icons.Filled.CheckCircle,
