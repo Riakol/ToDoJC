@@ -12,6 +12,7 @@ import com.riakol.todojc.domain.usecase.subtask.GetSubTasksUseCase
 import com.riakol.todojc.domain.usecase.subtask.RemoveSubTaskUseCase
 import com.riakol.todojc.domain.usecase.subtask.UpdateSubTaskUseCase
 import com.riakol.todojc.domain.usecase.task.GetTaskDetailsUseCase
+import com.riakol.todojc.domain.usecase.task.RemoveTaskUseCase
 import com.riakol.todojc.domain.usecase.task.UpdateTaskUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -30,6 +31,7 @@ class TaskScreenViewModel @Inject constructor(
     private val removeSubTaskUseCase: RemoveSubTaskUseCase,
     private val updateTaskUseCase: UpdateTaskUseCase,
     private val getGroupDetailsUseCase: GetGroupDetailsUseCase,
+    private val removeTaskUseCase: RemoveTaskUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _taskDetails = MutableStateFlow<Task?>(null)
@@ -130,6 +132,12 @@ class TaskScreenViewModel @Inject constructor(
         viewModelScope.launch {
             val updatedTask = task.copy(isCompleted = !task.isCompleted)
             updateTaskUseCase(updatedTask)
+        }
+    }
+
+    fun removeTask(task: Task) {
+        viewModelScope.launch {
+            removeTaskUseCase(task)
         }
     }
 }

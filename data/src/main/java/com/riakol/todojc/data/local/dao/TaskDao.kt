@@ -1,6 +1,7 @@
 package com.riakol.todojc.data.local.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
@@ -23,6 +24,9 @@ interface TaskDao {
 
     @Update
     suspend fun updateTask(task: TaskList)
+
+    @Delete
+    suspend fun deleteTask(task: TaskList)
 
     @Transaction
     @Query("SELECT * FROM tasks WHERE group_id = :groupId")

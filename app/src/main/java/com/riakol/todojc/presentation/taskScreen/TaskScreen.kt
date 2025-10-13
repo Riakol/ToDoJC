@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.outlined.Circle
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -41,6 +42,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -79,6 +81,8 @@ fun TaskScreen(
     navController: NavController,
     viewModel: TaskScreenViewModel = hiltViewModel()
 ) {
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
     val taskDetails = viewModel.taskDetails.collectAsStateWithLifecycle()
     val groupDetails by viewModel.groupDetails.collectAsStateWithLifecycle()
     val subTasks = viewModel.subTasks.collectAsStateWithLifecycle()
@@ -211,11 +215,18 @@ fun TaskScreen(
                             unfocusedIndicatorColor = Color.Transparent
                         )
                     )
-//                    Text(
-//                        text = taskDetails.value?.title ?: "Загрузка...",
-//                        style = TextStyle(fontSize = 24.sp),
-//                        textDecoration = if (taskDetails.value?.isCompleted == true) TextDecoration.LineThrough else TextDecoration.None
-//                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    IconButton(
+                        onClick = {
+                            showDeleteDialog = true
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.DeleteForever,
+                            contentDescription = "Delete task"
+                        )
+                    }
+
                 }
             }
 
@@ -368,6 +379,20 @@ fun TaskScreen(
             }
         }
     }
+    if (showDeleteDialog) {
+        DeleteConfirmationDialog(
+            onDismissRequest = {
+                showDeleteDialog = false
+            },
+            onConfirm = {
+                taskDetails.value?.let { task ->
+                    viewModel.removeTask(task)
+                    navController.navigateUp()
+                }
+                showDeleteDialog = false
+            }
+        )
+    }
 }
 
 
@@ -494,4 +519,30 @@ fun SubTaskItem(
             modifier = Modifier.padding(start = 65.dp, end = 45.dp)
         )
     }
+}
+
+@Composable
+fun DeleteConfirmationDialog(
+    onConfirm: () -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        title = { Text("Подтверждение") },
+        text = { Text("Вы точно хотите удалить эту задачу?") },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm
+            ) {
+                Text("Да")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismissRequest
+            ) {
+                Text("Нет")
+            }
+        }
+    )
 }
