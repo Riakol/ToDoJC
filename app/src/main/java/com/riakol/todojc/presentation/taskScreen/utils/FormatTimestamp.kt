@@ -1,4 +1,4 @@
-package com.riakol.todojc.presentation.taskScreen
+package com.riakol.todojc.presentation.taskScreen.utils
 
 import java.text.SimpleDateFormat
 import java.util.Date

@@ -69,6 +69,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.riakol.todojc.domain.model.SubTask
+import com.riakol.todojc.presentation.taskScreen.utils.formatTimestamp
 import com.riakol.todojs.R
 import kotlinx.coroutines.launch
 
@@ -85,6 +86,7 @@ fun TaskScreen(
 
     var isAddStepEditing by remember { mutableStateOf(false) }
     var addStepText by remember { mutableStateOf("") }
+    var localTaskTitle by remember { mutableStateOf("") }
     val addStepFocusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     var expandedSubTaskId by remember { mutableStateOf<Int?>(null) }
@@ -92,6 +94,12 @@ fun TaskScreen(
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
+
+    LaunchedEffect(taskDetails) {
+        taskDetails.value?.let {
+            localTaskTitle = it.title
+        }
+    }
 
     Scaffold(
         bottomBar = {
@@ -144,7 +152,8 @@ fun TaskScreen(
                         )
                     }
                     Text(
-                        modifier = Modifier.padding(start = 8.dp),
+                        modifier = Modifier
+                            .padding(start = 8.dp),
                         text = groupDetails?.name ?: ""
                     )
                     Spacer(modifier = Modifier.weight(1f))
@@ -153,7 +162,6 @@ fun TaskScreen(
                             formatTimestamp(task.creationDate)
                         } ?: "",
                         modifier = Modifier.padding(end = 16.dp)
-
                     )
                 }
             }
@@ -179,11 +187,35 @@ fun TaskScreen(
                             )
                         }
                     }
-                    Text(
-                        text = taskDetails.value?.title ?: "Загрузка...",
-                        style = TextStyle(fontSize = 24.sp),
-                        textDecoration = if (taskDetails.value?.isCompleted == true) TextDecoration.LineThrough else TextDecoration.None
+                    TextField(
+                        value = localTaskTitle.ifEmpty { taskDetails.value?.title ?: "Loading.." },
+                        onValueChange = {
+                            localTaskTitle = it
+                        },
+                        textStyle = TextStyle(
+                            fontSize = 24.sp,
+                            textDecoration = if (taskDetails.value?.isCompleted == true) TextDecoration.LineThrough else TextDecoration.None),
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .onFocusChanged(
+                                onFocusChanged = { focusState ->
+                                    if (!focusState.isFocused) {
+                                        viewModel.onTaskNameChanged(localTaskTitle)
+                                    }
+                                }
+                            ),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent
+                        )
                     )
+//                    Text(
+//                        text = taskDetails.value?.title ?: "Загрузка...",
+//                        style = TextStyle(fontSize = 24.sp),
+//                        textDecoration = if (taskDetails.value?.isCompleted == true) TextDecoration.LineThrough else TextDecoration.None
+//                    )
                 }
             }
 
@@ -399,7 +431,7 @@ fun SubTaskItem(
                         if (text.isBlank()) {
                             viewModel.removeSubTask(subTask)
                         } else if (text != subTask.title) {
-                            viewModel.onSubTaskChanged(subTask, text)
+                            viewModel.onSubTaskNameChanged(subTask, text)
                         }
                     }
                 },

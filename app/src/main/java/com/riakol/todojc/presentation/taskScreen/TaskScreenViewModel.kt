@@ -93,9 +93,19 @@ class TaskScreenViewModel @Inject constructor(
         }
     }
 
-    fun onSubTaskChanged(subtask: SubTask, newTitle: String) {
+    fun onSubTaskNameChanged(subtask: SubTask, newTitle: String) {
         viewModelScope.launch {
             updateSubTaskUseCase(subtask.copy(title = newTitle))
+        }
+    }
+
+    fun onTaskNameChanged(newTitle: String) {
+        _taskDetails.value?.let {
+            if (newTitle.isNotBlank() && it.title != newTitle) {
+                viewModelScope.launch {
+                    updateTaskUseCase(it.copy(title = newTitle))
+                }
+            }
         }
     }
 
