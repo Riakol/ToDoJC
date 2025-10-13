@@ -24,8 +24,10 @@ import androidx.compose.material.icons.filled.AddAlert
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.outlined.Circle
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -87,6 +89,8 @@ fun TaskScreen(
     val groupDetails by viewModel.groupDetails.collectAsStateWithLifecycle()
     val subTasks = viewModel.subTasks.collectAsStateWithLifecycle()
     val noteText by viewModel.noteText.collectAsStateWithLifecycle()
+
+    val task = taskDetails.value
 
     var isAddStepEditing by remember { mutableStateOf(false) }
     var addStepText by remember { mutableStateOf("") }
@@ -321,11 +325,20 @@ fun TaskScreen(
                         .padding(horizontal = 24.dp, vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    ActionCardItem(
-                        text = "Add to My Favourites",
-                        Icons.Default.WbSunny,
-                        onClick = {}
-                    )
+                    if (task != null) {
+                        val text = if (task.isFavourite) "Remove from favorites" else "Add to My Favourites"
+                        val icon = if (task.isFavourite) Icons.Filled.Star else Icons.Outlined.Star
+
+                        ActionCardItem(
+                            text = text,
+                            icon = icon,
+                            onClick = {
+                                taskDetails.value?.let {
+                                    viewModel.toggleFavoriteStatus(task)
+                                }
+                            }
+                        )
+                    }
                     ActionCardItem(
                         text = "Remind me",
                         Icons.Default.AddAlert,

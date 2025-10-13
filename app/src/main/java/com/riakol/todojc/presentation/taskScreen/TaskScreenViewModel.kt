@@ -140,4 +140,11 @@ class TaskScreenViewModel @Inject constructor(
             removeTaskUseCase(task)
         }
     }
+
+    fun toggleFavoriteStatus(task: Task) {
+        viewModelScope.launch {
+            val updatedTask = task.copy(isFavourite = !task.isFavourite)
+            updateTaskUseCase(updatedTask)
+        }
+    }
 }

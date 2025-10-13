@@ -11,6 +11,7 @@ fun TaskList.toTask(): Task {
         description = this.description,
         creationDate = this.creationDate,
         isCompleted = this.isCompleted,
+        isFavourite = this.isFavourite,
         groupId = this.groupId
     )
 }
@@ -22,6 +23,7 @@ fun Task.toTaskList(): TaskList {
         description = this.description,
         creationDate = this.creationDate,
         isCompleted = this.isCompleted,
+        isFavourite = this.isFavourite,
         groupId = this.groupId
     )
 }
@@ -34,6 +36,7 @@ fun TaskWithSubTasks.toTask(): Task {
         creationDate = this.task.creationDate,
         isCompleted = this.task.isCompleted,
         groupId = this.task.groupId,
+        isFavourite = this.task.isFavourite,
         subTasks = this.subTasks.map { it.toSubTask() }
     )
 }
@@ -46,6 +49,7 @@ fun Task.toTaskWithSubTasks(): TaskWithSubTasks {
             description = this.description,
             creationDate = this.creationDate,
             isCompleted = this.isCompleted,
+            isFavourite = this.isFavourite,
             groupId = this.groupId
         ),
         subTasks = this.subTasks.map { it.toSubTaskList() }

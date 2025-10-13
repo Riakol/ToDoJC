@@ -7,5 +7,6 @@ data class Task(
     val creationDate: Long,
     val isCompleted: Boolean = false,
     val groupId: Int,
+    val isFavourite: Boolean = false,
     val subTasks: List<SubTask> = emptyList()
 )
