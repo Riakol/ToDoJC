@@ -73,6 +73,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.riakol.todojc.domain.model.SubTask
+import com.riakol.todojc.presentation.common.RemoveTaskDialog
 import com.riakol.todojc.presentation.taskScreen.utils.formatTimestamp
 import com.riakol.todojs.R
 import kotlinx.coroutines.launch
@@ -393,8 +394,8 @@ fun TaskScreen(
         }
     }
     if (showDeleteDialog) {
-        DeleteConfirmationDialog(
-            onDismissRequest = {
+        RemoveTaskDialog(
+            onDismiss = {
                 showDeleteDialog = false
             },
             onConfirm = {
@@ -403,7 +404,8 @@ fun TaskScreen(
                     navController.navigateUp()
                 }
                 showDeleteDialog = false
-            }
+            },
+            taskName = taskDetails.value?.title ?: "Error title"
         )
     }
 }
@@ -534,28 +536,28 @@ fun SubTaskItem(
     }
 }
 
-@Composable
-fun DeleteConfirmationDialog(
-    onConfirm: () -> Unit,
-    onDismissRequest: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismissRequest,
-        title = { Text("Подтверждение") },
-        text = { Text("Вы точно хотите удалить эту задачу?") },
-        confirmButton = {
-            TextButton(
-                onClick = onConfirm
-            ) {
-                Text("Да")
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = onDismissRequest
-            ) {
-                Text("Нет")
-            }
-        }
-    )
-}
+//@Composable
+//fun DeleteConfirmationDialog(
+//    onConfirm: () -> Unit,
+//    onDismissRequest: () -> Unit
+//) {
+//    AlertDialog(
+//        onDismissRequest = onDismissRequest,
+//        title = { Text("Подтверждение") },
+//        text = { Text("Вы точно хотите удалить эту задачу?") },
+//        confirmButton = {
+//            TextButton(
+//                onClick = onConfirm
+//            ) {
+//                Text("Да")
+//            }
+//        },
+//        dismissButton = {
+//            TextButton(
+//                onClick = onDismissRequest
+//            ) {
+//                Text("Нет")
+//            }
+//        }
+//    )
+//}

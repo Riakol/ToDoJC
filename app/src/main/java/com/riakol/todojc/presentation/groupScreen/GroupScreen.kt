@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.DensityMedium
 import androidx.compose.material.icons.outlined.ChangeCircle
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Circle
+import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -47,6 +48,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.riakol.todojc.domain.model.Task
+import com.riakol.todojc.presentation.common.RemoveTaskDialog
 import com.riakol.todojs.R
 
 
@@ -125,6 +127,9 @@ fun GroupScreen(
                         },
                         onToggleClick = {
                             viewModel.toggleTaskCompletion(task)
+                        },
+                        onRemoveClick = {
+                            dialogState = DialogTaskState.RemoveTask(task)
                         }
                     )
                 }
@@ -146,6 +151,16 @@ fun GroupScreen(
         }
 
         is DialogTaskState.RenameTask -> TODO()
+        is DialogTaskState.RemoveTask -> {
+            RemoveTaskDialog(
+                taskName = currentDialog.task.title,
+                onDismiss = { dialogState = DialogTaskState.None },
+                onConfirm = {
+                    viewModel.removeTask(currentDialog.task)
+                    dialogState = DialogTaskState.None
+                }
+            )
+        }
     }
 
 }
@@ -193,7 +208,8 @@ fun AddNewTaskDialog(
 fun TaskCardItem(
     task: Task,
     onTaskClick: (Int) -> Unit,
-    onToggleClick: () -> Unit
+    onToggleClick: () -> Unit,
+    onRemoveClick: () -> Unit
 ) {
     val completedCount = task.subTasks.count { it.isCompleted }
     val totalSubTasks = task.subTasks.size
@@ -240,6 +256,19 @@ fun TaskCardItem(
                     modifier = Modifier.padding(16.dp),
                     textAlign = TextAlign.Start,
                     textDecoration = if (task.isCompleted) TextDecoration.LineThrough else TextDecoration.None
+                )
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+            IconButton(
+                onClick = {
+                    onRemoveClick()
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.DeleteForever,
+                    contentDescription = "Delete task",
+                    modifier = Modifier.size(24.dp)
                 )
             }
         }
