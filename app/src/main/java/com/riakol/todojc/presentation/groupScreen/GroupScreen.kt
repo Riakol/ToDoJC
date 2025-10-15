@@ -1,6 +1,7 @@
 package com.riakol.todojc.presentation.groupScreen
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,10 +17,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.DensityMedium
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.ChangeCircle
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material.icons.outlined.DeleteForever
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -130,6 +133,9 @@ fun GroupScreen(
                         },
                         onRemoveClick = {
                             dialogState = DialogTaskState.RemoveTask(task)
+                        },
+                        onFavouriteClick = {
+                            viewModel.toggleFavoriteStatus(task)
                         }
                     )
                 }
@@ -209,7 +215,8 @@ fun TaskCardItem(
     task: Task,
     onTaskClick: (Int) -> Unit,
     onToggleClick: () -> Unit,
-    onRemoveClick: () -> Unit
+    onRemoveClick: () -> Unit,
+    onFavouriteClick: () -> Unit
 ) {
     val completedCount = task.subTasks.count { it.isCompleted }
     val totalSubTasks = task.subTasks.size
@@ -223,9 +230,14 @@ fun TaskCardItem(
         ),
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {
-                onTaskClick(task.id)
-            }
+            .combinedClickable(
+                onClick = {
+                    onTaskClick(task.id)
+                },
+                onLongClick = {
+                    onRemoveClick()
+                }
+            )
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically
@@ -260,16 +272,21 @@ fun TaskCardItem(
             }
 
             Spacer(modifier = Modifier.weight(1f))
-            IconButton(
-                onClick = {
-                    onRemoveClick()
+            if (task != null) {
+                val text = if (task.isFavourite) "Remove from favorites" else "Add to My Favourites"
+                val icon = if (task.isFavourite) R.drawable.heart else R.drawable.heart_outline
+
+                IconButton(
+                    onClick = {
+                        onFavouriteClick()
+                    }
+                ) {
+                    Icon(
+                        painterResource(icon),
+                        contentDescription = text,
+                        modifier = Modifier.size(24.dp)
+                    )
                 }
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.DeleteForever,
-                    contentDescription = "Delete task",
-                    modifier = Modifier.size(24.dp)
-                )
             }
         }
     }
