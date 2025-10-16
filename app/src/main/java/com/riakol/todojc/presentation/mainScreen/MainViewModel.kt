@@ -7,8 +7,11 @@ import com.riakol.todojc.domain.model.Group
 import com.riakol.todojc.domain.usecase.category.AddCategoryUseCase
 import com.riakol.todojc.domain.usecase.group.AddGroupUseCase
 import com.riakol.todojc.domain.usecase.category.GetCategoriesUseCase
+import com.riakol.todojc.domain.usecase.category.RemoveCategoryUseCase
 import com.riakol.todojc.domain.usecase.category.UpdateCategoryUseCase
 import com.riakol.todojc.domain.usecase.group.GetUnassignedGroupsUseCase
+import com.riakol.todojc.domain.usecase.group.RemoveGroupUseCase
+import com.riakol.todojc.domain.usecase.group.UpdateGroupUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -24,6 +27,9 @@ class MainViewModel @Inject constructor(
     private val addGroupUseCase: AddGroupUseCase,
     private val getUnassignedGroupsUseCase: GetUnassignedGroupsUseCase,
     private val updateCategoryUseCase: UpdateCategoryUseCase,
+    private val updateGroupUseCase: UpdateGroupUseCase,
+    private val removeGroupUseCase: RemoveGroupUseCase,
+    private val removeCategoryUseCase: RemoveCategoryUseCase
 ) : ViewModel() {
 
     private val categoriesFlow = getCategoriesUseCase()
@@ -89,6 +95,24 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             val newCategory = category.copy(name = newName)
             updateCategoryUseCase(newCategory)
+        }
+    }
+
+    fun removeGroup(group: Group) {
+        viewModelScope.launch {
+            removeGroupUseCase(group)
+        }
+    }
+
+    fun removeCategory(category: Category) {
+        viewModelScope.launch {
+            removeCategoryUseCase(category)
+        }
+    }
+
+    fun onGroupNameChanged(group: Group, newTitle: String) {
+        viewModelScope.launch {
+            updateGroupUseCase(group.copy(name = newTitle))
         }
     }
 }

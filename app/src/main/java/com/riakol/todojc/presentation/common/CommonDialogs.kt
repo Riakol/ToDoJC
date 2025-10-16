@@ -125,3 +125,30 @@ fun RemoveGroupDialog(
         }
     )
 }
+
+@Composable
+fun RemoveCategoryDialog(
+    category: Category,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Remove category") },
+        text = { Text("Are you sure you want to remove this category \"${category.name}\"?") },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm
+            ) {
+                Text("Yes")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss
+            ) {
+                Text("No")
+            }
+        }
+    )
+}

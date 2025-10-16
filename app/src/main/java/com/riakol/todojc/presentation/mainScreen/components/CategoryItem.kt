@@ -21,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Update
 import androidx.compose.material3.DropdownMenu
@@ -43,8 +44,8 @@ import com.riakol.todojc.domain.model.Category
 
 @Composable
 fun CategoryItemOptions(
-    onAddGroupClick: () -> Unit,
-    onRenameClick: () -> Unit
+    category: Category,
+    onEvent: (DynamicListEvent) -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(false) }
 
@@ -70,7 +71,7 @@ fun CategoryItemOptions(
                     )
                 },
                 onClick = {
-                    onRenameClick()
+                    onEvent(DynamicListEvent.OnRenameCategoryClick(category))
                     isExpanded = false
                 }
             )
@@ -83,7 +84,20 @@ fun CategoryItemOptions(
                     )
                 },
                 onClick = {
-                    onAddGroupClick()
+                    onEvent(DynamicListEvent.OnAddNewGroupInListClick(category.id))
+                    isExpanded = false
+                }
+            )
+            DropdownMenuItem(
+                text = { Text("Delete category") },
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.DeleteForever,
+                        contentDescription = "delete category"
+                    )
+                },
+                onClick = {
+                    onEvent(DynamicListEvent.OnDeleteCategoryClick(category))
                     isExpanded = false
                 }
             )
@@ -124,8 +138,8 @@ fun CategoryItemOptions(
                     modifier = Modifier.weight(1f)
                 )
                 if (isExpanded) CategoryItemOptions(
-                    onAddGroupClick = { onEvent(DynamicListEvent.OnAddNewGroupInListClick(category.id)) },
-                    onRenameClick = { onEvent(DynamicListEvent.OnRenameCategoryClick(category)) }
+                    category = category,
+                    onEvent = onEvent
                 )
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
@@ -161,10 +175,6 @@ fun CategoryItemOptions(
                             GroupItem(
                                 group = group,
                                 onEvent = onEvent
-//                                onGroupClick = { onEvent(DynamicListEvent.OnGroupClick(group.id)) },
-//                                onRenameClick = { /*TODO*/ },
-//                                onDeleteClick = { /*TODO*/ },
-//                                onMoveClick = { /*TODO*/ }
                             )
                         }
                     }

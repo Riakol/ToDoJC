@@ -31,6 +31,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.riakol.todojc.presentation.common.RemoveCategoryDialog
+import com.riakol.todojc.presentation.common.RemoveGroupDialog
+import com.riakol.todojc.presentation.common.RenameCategoryDialog
+import com.riakol.todojc.presentation.common.RenameGroupDialog
+import com.riakol.todojc.presentation.groupScreen.DialogTaskState
+import com.riakol.todojc.presentation.mainScreen.DialogMainScreenState.*
 import com.riakol.todojc.presentation.mainScreen.components.AddNewCategoryDialog
 import com.riakol.todojc.presentation.mainScreen.components.AddNewGroup
 import com.riakol.todojc.presentation.mainScreen.components.CategoryItemDropdownMenu
@@ -66,18 +72,26 @@ fun Main_screen(
                         is DynamicListEvent.OnGroupClick -> {
                             navController.navigate("group_screen/${event.groupId}")
                         }
+
                         is DynamicListEvent.OnDeleteGroupClick -> {
-                            dialogState = DialogMainScreenState.RemoveGroup(event.group)
+                            dialogState = RemoveGroup(event.group)
                         }
+
                         is DynamicListEvent.OnMoveGroupClick -> TODO()
                         is DynamicListEvent.OnRenameCategoryClick -> {
-                            dialogState = DialogMainScreenState.RenameCategory(event.category)
+                            dialogState = RenameCategory(event.category)
                         }
+
                         is DynamicListEvent.OnRenameGroupClick -> {
-                            dialogState = DialogMainScreenState.RenameGroup(event.group)
+                            dialogState = RenameGroup(event.group)
                         }
+
                         is DynamicListEvent.OnAddNewGroupInListClick -> {
-                            dialogState = DialogMainScreenState.AddNewGroup(event.categoryId)
+                            dialogState = AddNewGroup(event.categoryId)
+                        }
+
+                        is DynamicListEvent.OnDeleteCategoryClick -> {
+                            dialogState = RemoveCategory(event.category)
                         }
                     }
                 },
@@ -240,8 +254,15 @@ private fun HandleDialogs(
         }
 
         is DialogMainScreenState.RenameCategory -> {
-
+            RenameCategoryDialog(
+                category = currentDialog.category,
+                onDismiss = { onDismiss() }
+            ) { newTitle ->
+                viewModel.renameCategory(currentDialog.category, newTitle)
+                onDismiss()
+            }
         }
+
         is DialogMainScreenState.AddNewUnassignedGroup -> {
             AddNewGroup(
                 onDismiss = onDismiss,
@@ -257,12 +278,41 @@ private fun HandleDialogs(
                 onDismiss = onDismiss,
                 onConfirm = { groupName ->
                     viewModel.addGroup(groupName, currentDialog.categoryId)
-                    onDismiss
+                    onDismiss()
                 }
             )
         }
-        is DialogMainScreenState.RenameGroup -> {}
-        is DialogMainScreenState.RemoveGroup -> {}
+
+        is DialogMainScreenState.RenameGroup -> {
+            RenameGroupDialog(
+                group = currentDialog.group,
+                onDismiss = { onDismiss() },
+                onConfirm = { newTitle ->
+                    viewModel.onGroupNameChanged(currentDialog.group, newTitle)
+                    onDismiss()
+                }
+            )
+        }
+        is DialogMainScreenState.RemoveGroup -> {
+            RemoveGroupDialog(
+                group = currentDialog.group,
+                onDismiss = { onDismiss() },
+                onConfirm = {
+                    viewModel.removeGroup(currentDialog.group)
+                    onDismiss()
+                }
+            )
+        }
         is DialogMainScreenState.MoveGroup -> {}
+        is DialogMainScreenState.RemoveCategory -> {
+            RemoveCategoryDialog(
+                category = currentDialog.category,
+                onDismiss = { onDismiss() },
+                onConfirm = {
+                    viewModel.removeCategory(currentDialog.category)
+                    onDismiss()
+                }
+            )
+        }
     }
 }

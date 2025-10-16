@@ -10,4 +10,5 @@ sealed interface DynamicListEvent {
     data class OnMoveGroupClick(val group: Group) : DynamicListEvent
     data class OnRenameCategoryClick(val category: Category) : DynamicListEvent
     data class OnAddNewGroupInListClick(val categoryId: Int) : DynamicListEvent
+    data class OnDeleteCategoryClick(val category: Category) : DynamicListEvent
 }

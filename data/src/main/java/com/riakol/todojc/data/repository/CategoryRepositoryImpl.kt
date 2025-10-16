@@ -27,4 +27,8 @@ class CategoryRepositoryImpl @Inject constructor(
     override suspend fun updateCategory(category: Category) {
         dao.updateCategory(category.toCategoryWithGroups().category)
     }
+
+    override suspend fun deleteCategory(category: Category) {
+        dao.deleteCategory(category.toCategoryWithGroups().category)
+    }
 }
