@@ -34,6 +34,7 @@ import androidx.navigation.NavController
 import com.riakol.todojc.presentation.mainScreen.components.AddNewCategoryDialog
 import com.riakol.todojc.presentation.mainScreen.components.AddNewGroup
 import com.riakol.todojc.presentation.mainScreen.components.CategoryItemDropdownMenu
+import com.riakol.todojc.presentation.mainScreen.components.DynamicListEvent
 import com.riakol.todojc.presentation.mainScreen.components.GroupItem
 import com.riakol.todojs.R
 
@@ -60,14 +61,27 @@ fun Main_screen(
             DynamicContentList(
                 itemsState,
                 navController,
-                onGroupClick = { groupId ->
-                    navController.navigate("group_screen/$groupId")
+                onEvent = { event ->
+                    when (event) {
+                        is DynamicListEvent.OnGroupClick -> {
+                            navController.navigate("group_screen/${event.groupId}")
+                        }
+                        is DynamicListEvent.OnDeleteGroupClick -> {
+                            dialogState = DialogMainScreenState.RemoveGroup(event.group)
+                        }
+                        is DynamicListEvent.OnMoveGroupClick -> TODO()
+                        is DynamicListEvent.OnRenameCategoryClick -> {
+                            dialogState = DialogMainScreenState.RenameCategory(event.category)
+                        }
+                        is DynamicListEvent.OnRenameGroupClick -> {
+                            dialogState = DialogMainScreenState.RenameGroup(event.group)
+                        }
+                        is DynamicListEvent.OnAddNewGroupInListClick -> {
+                            dialogState = DialogMainScreenState.AddNewGroup(event.categoryId)
+                        }
+                    }
                 },
-                onAddNewGroupInListClick = { categoryId ->
-                    dialogState = DialogMainScreenState.AddNewGroup(categoryId)
-                }
             )
-
         }
     }
 
@@ -172,8 +186,7 @@ private fun StaticActionList() {
 private fun DynamicContentList(
     itemsState: List<MainScreenItem>,
     navController: NavController,
-    onGroupClick: (Int) -> Unit,
-    onAddNewGroupInListClick: (Int) -> Unit
+    onEvent: (DynamicListEvent) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -188,18 +201,19 @@ private fun DynamicContentList(
             when (item) {
                 is MainScreenItem.CategoryItem -> {
                     CategoryItemDropdownMenu(
-                        item.category,
-                        onGroupClick = onGroupClick,
-                        onAddNewGroupClick = {
-                            onAddNewGroupInListClick(item.category.id)
-                        }
+                        category = item.category,
+                        onEvent = onEvent,
                     )
                 }
 
                 is MainScreenItem.GroupItem -> {
                     GroupItem(
                         item.group,
-                        onGroupClick = onGroupClick
+                        onEvent = onEvent,
+//                        onGroupClick = onGroupClick,
+//                        onRenameClick = { onRenameGroupClick(item.group) },
+//                        onDeleteClick = { onDeleteGroupClick(item.group) },
+//                        onMoveClick = { onMoveGroupClick(item.group) }
                     )
                 }
             }
@@ -225,7 +239,9 @@ private fun HandleDialogs(
             )
         }
 
-        is DialogMainScreenState.RenameCategory -> TODO()
+        is DialogMainScreenState.RenameCategory -> {
+
+        }
         is DialogMainScreenState.AddNewUnassignedGroup -> {
             AddNewGroup(
                 onDismiss = onDismiss,
@@ -245,5 +261,8 @@ private fun HandleDialogs(
                 }
             )
         }
+        is DialogMainScreenState.RenameGroup -> {}
+        is DialogMainScreenState.RemoveGroup -> {}
+        is DialogMainScreenState.MoveGroup -> {}
     }
 }

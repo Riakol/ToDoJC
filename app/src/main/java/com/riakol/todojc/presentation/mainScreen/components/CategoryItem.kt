@@ -21,7 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Category
-import androidx.compose.material.icons.filled.DensityMedium
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Update
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -38,13 +38,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.riakol.todojc.domain.model.Category
-import com.riakol.todojs.R
 
 @Composable
-fun CategoryItemOptions(onAddGroupClick: () -> Unit) {
+fun CategoryItemOptions(
+    onAddGroupClick: () -> Unit,
+    onRenameClick: () -> Unit
+) {
     var isExpanded by remember { mutableStateOf(false) }
 
     Box {
@@ -52,8 +53,8 @@ fun CategoryItemOptions(onAddGroupClick: () -> Unit) {
             onClick = { isExpanded = !isExpanded },
         ) {
             Icon(
-                imageVector = Icons.Default.DensityMedium,
-                contentDescription = "More options",
+                imageVector = Icons.Default.MoreVert,
+                contentDescription = "Group Options",
             )
         }
         DropdownMenu(
@@ -61,14 +62,17 @@ fun CategoryItemOptions(onAddGroupClick: () -> Unit) {
             onDismissRequest = { isExpanded = false },
         ) {
             DropdownMenuItem(
-                text = { Text("Rename group") },
+                text = { Text("Rename category") },
                 leadingIcon = {
                     Icon(
                         Icons.Default.Update,
-                        contentDescription = "Rename group"
+                        contentDescription = "Rename category"
                     )
                 },
-                onClick = { /* Do something... */ }
+                onClick = {
+                    onRenameClick()
+                    isExpanded = false
+                }
             )
             DropdownMenuItem(
                 text = { Text("Add group") },
@@ -90,8 +94,7 @@ fun CategoryItemOptions(onAddGroupClick: () -> Unit) {
     @Composable
     fun CategoryItemDropdownMenu(
         category: Category,
-        onAddNewGroupClick: () -> Unit,
-        onGroupClick: (Int) -> Unit
+        onEvent: (DynamicListEvent) -> Unit
     ) {
         var isExpanded by remember { mutableStateOf(false) }
         val rotationAngle by animateFloatAsState(
@@ -120,7 +123,10 @@ fun CategoryItemOptions(onAddGroupClick: () -> Unit) {
                     category.name,
                     modifier = Modifier.weight(1f)
                 )
-                if (isExpanded) CategoryItemOptions(onAddGroupClick = onAddNewGroupClick)
+                if (isExpanded) CategoryItemOptions(
+                    onAddGroupClick = { onEvent(DynamicListEvent.OnAddNewGroupInListClick(category.id)) },
+                    onRenameClick = { onEvent(DynamicListEvent.OnRenameCategoryClick(category)) }
+                )
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
                     contentDescription = "Expand",
@@ -151,12 +157,15 @@ fun CategoryItemOptions(onAddGroupClick: () -> Unit) {
                             .padding(start = 16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        category.groups.forEach {
+                        category.groups.forEach { group ->
                             GroupItem(
-                                group = it
-                            ) { groupId ->
-                                onGroupClick(groupId)
-                            }
+                                group = group,
+                                onEvent = onEvent
+//                                onGroupClick = { onEvent(DynamicListEvent.OnGroupClick(group.id)) },
+//                                onRenameClick = { /*TODO*/ },
+//                                onDeleteClick = { /*TODO*/ },
+//                                onMoveClick = { /*TODO*/ }
+                            )
                         }
                     }
                 }

@@ -28,7 +28,6 @@ class GroupRepositoryImpl @Inject constructor(
         }
     }
 
-
     override suspend fun addGroup(group: Group) {
         dao.addGroup(group.toGroupList())
     }
@@ -37,4 +36,11 @@ class GroupRepositoryImpl @Inject constructor(
         return dao.getGroupById(groupId).map { groupList -> groupList.toGroup() }
     }
 
+    override suspend fun deleteGroup(group: Group) {
+        dao.deleteGroup(group.toGroupList())
+    }
+
+    override suspend fun updateGroup(group: Group) {
+        dao.updateGroup(group.toGroupList())
+    }
 }

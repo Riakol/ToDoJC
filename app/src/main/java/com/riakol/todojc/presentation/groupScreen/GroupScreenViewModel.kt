@@ -7,6 +7,8 @@ import com.riakol.todojc.domain.model.Group
 import com.riakol.todojc.domain.model.Task
 import com.riakol.todojc.domain.usecase.task.AddTaskUseCase
 import com.riakol.todojc.domain.usecase.group.GetGroupDetailsUseCase
+import com.riakol.todojc.domain.usecase.group.RemoveGroupUseCase
+import com.riakol.todojc.domain.usecase.group.UpdateGroupUseCase
 import com.riakol.todojc.domain.usecase.task.GetTasksUseCase
 import com.riakol.todojc.domain.usecase.task.RemoveTaskUseCase
 import com.riakol.todojc.domain.usecase.task.UpdateTaskUseCase
@@ -23,6 +25,8 @@ class GroupScreenViewModel @Inject constructor(
     private val getGroupDetailsUseCase: GetGroupDetailsUseCase,
     private val updateTaskUseCase: UpdateTaskUseCase,
     private val removeTaskUseCase: RemoveTaskUseCase,
+    private val removeGroupUseCase: RemoveGroupUseCase,
+    private val updateGroupUseCase: UpdateGroupUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -83,6 +87,18 @@ class GroupScreenViewModel @Inject constructor(
     fun removeTask(task: Task) {
         viewModelScope.launch {
             removeTaskUseCase(task)
+        }
+    }
+
+    fun removeGroup(group: Group) {
+        viewModelScope.launch {
+            removeGroupUseCase(group)
+        }
+    }
+
+    fun onGroupNameChanged(group: Group, newTitle: String) {
+        viewModelScope.launch {
+            updateGroupUseCase(group.copy(name = newTitle))
         }
     }
 

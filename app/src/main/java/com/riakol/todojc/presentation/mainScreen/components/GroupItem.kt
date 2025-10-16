@@ -1,6 +1,9 @@
 package com.riakol.todojc.presentation.mainScreen.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -10,18 +13,44 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.riakol.todojc.domain.model.Group
+import com.riakol.todojc.presentation.common.GroupOptionsMenu
+import com.riakol.todojc.presentation.mainScreen.components.DynamicListEvent.*
 
 @Composable
 fun GroupItem(
     group: Group,
-    onGroupClick: (Int) -> Unit = {}
+    onEvent: (DynamicListEvent) -> Unit
 ) {
-    Text(
-        text = group.name,
-        modifier = Modifier.clickable { onGroupClick(group.id) }
-    )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onEvent(DynamicListEvent.OnGroupClick(group.id)) }
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = group.name,
+            modifier = Modifier.weight(1f)
+        )
+        GroupOptionsMenu(
+            group = group,
+            onEvent = { event ->
+                when (event) {
+                    is DynamicListEvent.OnRenameGroupClick -> {
+                        onEvent(OnRenameGroupClick(group))
+                    }
+                    is DynamicListEvent.OnDeleteGroupClick -> {
+                        onEvent(OnDeleteGroupClick(group))
+                    }
+                    else -> {}
+                }
+            }
+        )
+    }
 }
 
 @Composable

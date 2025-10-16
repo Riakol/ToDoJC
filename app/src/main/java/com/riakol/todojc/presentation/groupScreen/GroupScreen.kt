@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.DensityMedium
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.ChangeCircle
 import androidx.compose.material.icons.outlined.CheckCircle
@@ -51,7 +52,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.riakol.todojc.domain.model.Task
+import com.riakol.todojc.presentation.common.GroupOptionsMenu
+import com.riakol.todojc.presentation.common.RemoveGroupDialog
 import com.riakol.todojc.presentation.common.RemoveTaskDialog
+import com.riakol.todojc.presentation.common.RenameGroupDialog
+import com.riakol.todojc.presentation.mainScreen.components.DynamicListEvent
 import com.riakol.todojs.R
 
 
@@ -63,6 +68,7 @@ fun GroupScreen(
     var dialogState by remember { mutableStateOf<DialogTaskState>(DialogTaskState.None) }
     val tasksState by viewModel.tasks.collectAsStateWithLifecycle()
     val groupDetailsState by viewModel.groupDetails.collectAsStateWithLifecycle()
+    val group = groupDetailsState
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -97,12 +103,38 @@ fun GroupScreen(
                         contentDescription = "Back"
                     )
                 }
-                IconButton(
-                    onClick = { },
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.DensityMedium,
-                        contentDescription = "More options",
+//                IconButton(
+//                    onClick = {
+//                        GroupOptionsMenu(
+//
+//                        ) {
+//
+//                        }
+//                    },
+//                ) {
+//                    Icon(
+//                        imageVector = Icons.Default.MoreVert,
+//                        contentDescription = "Group options",
+//                    )
+//                }
+                if (group != null) {
+                    GroupOptionsMenu(
+                        group = group,
+                        onEvent = { event ->
+                            when (event) {
+                                is DynamicListEvent.OnRenameGroupClick -> {
+                                    dialogState = DialogTaskState.RenameGroup(
+                                        event.group.id
+                                    )
+                                }
+                                is DynamicListEvent.OnDeleteGroupClick -> {
+                                    dialogState = DialogTaskState.RemoveGroup(
+                                        event.group
+                                    )
+                                }
+                                else -> {}
+                            }
+                        }
                     )
                 }
             }
@@ -166,6 +198,31 @@ fun GroupScreen(
                     dialogState = DialogTaskState.None
                 }
             )
+        }
+
+        is DialogTaskState.RemoveGroup -> {
+            if (group != null) {
+                RemoveGroupDialog(
+                    group = group,
+                    onDismiss = { dialogState = DialogTaskState.None },
+                    onConfirm = {
+                        viewModel.removeGroup(group)
+                        dialogState = DialogTaskState.None
+                    }
+                )
+            }
+        }
+        is DialogTaskState.RenameGroup -> {
+            if (group != null) {
+                RenameGroupDialog(
+                    group = group,
+                    onDismiss = { dialogState = DialogTaskState.None },
+                    onConfirm = { newTitle ->
+                        viewModel.onGroupNameChanged(group, newTitle)
+                        dialogState = DialogTaskState.None
+                    }
+                )
+            }
         }
     }
 
