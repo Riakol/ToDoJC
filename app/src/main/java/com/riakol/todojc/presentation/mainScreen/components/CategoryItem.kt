@@ -28,6 +28,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
@@ -39,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.riakol.todojc.domain.model.Category
 
@@ -105,80 +107,76 @@ fun CategoryItemOptions(
     }
 }
 
-    @Composable
-    fun CategoryItemDropdownMenu(
-        category: Category,
-        onEvent: (DynamicListEvent) -> Unit
+@Composable
+fun CategoryItemDropdownMenu(
+    category: Category,
+    onEvent: (DynamicListEvent) -> Unit
+) {
+    var isExpanded by remember { mutableStateOf(false) }
+    val rotationAngle by animateFloatAsState(
+        targetValue = if (isExpanded) 0f else 90f,
+        label = "rotation"
+    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
     ) {
-        var isExpanded by remember { mutableStateOf(false) }
-        val rotationAngle by animateFloatAsState(
-            targetValue = if (isExpanded) 0f else 90f,
-            label = "rotation"
-        )
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .height(48.dp)
+                .clickable { isExpanded = !isExpanded },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = category.name,
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            if (isExpanded) CategoryItemOptions(
+                category = category,
+                onEvent = onEvent
+            )
+            Icon(
+                imageVector = Icons.Default.ArrowDropDown,
+                contentDescription = "Expand",
+                modifier = Modifier.rotate(rotationAngle)
+            )
+        }
+
+        AnimatedVisibility(
+            visible = isExpanded,
+            enter = expandVertically(),
+            exit = shrinkVertically()
         ) {
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .defaultMinSize(minHeight = 48.dp)
-                    .clickable { isExpanded = !isExpanded },
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(start = 32.dp, top = 8.dp, bottom = 8.dp)
+                    .height(IntrinsicSize.Min),
             ) {
-                if (!isExpanded) {
-                    Icon(
-                        imageVector = Icons.Default.Category,
-                        contentDescription = "category icon"
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-                Text(
-                    category.name,
-                    modifier = Modifier.weight(1f)
+                VerticalDivider(
+                    modifier = Modifier.fillMaxHeight(),
+                    thickness = 3.dp,
+                    color = Color.Gray
                 )
-                if (isExpanded) CategoryItemOptions(
-                    category = category,
-                    onEvent = onEvent
-                )
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = "Expand",
-                    modifier = Modifier.rotate(rotationAngle)
-                )
-            }
-
-            AnimatedVisibility(
-                visible = isExpanded,
-                enter = expandVertically(),
-                exit = shrinkVertically()
-            ) {
-                Row(
+                Spacer(modifier = Modifier.width(16.dp))
+                Column(
                     modifier = Modifier
-                        .padding(start = 32.dp, top = 8.dp, bottom = 8.dp)
-                        .height(IntrinsicSize.Min),
+                        .fillMaxWidth()
+                        .defaultMinSize(minHeight = 48.dp)
+                        .padding(start = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    VerticalDivider(
-                        modifier = Modifier.fillMaxHeight(),
-                        thickness = 3.dp,
-                        color = Color.Gray
-                    )
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .defaultMinSize(minHeight = 48.dp)
-                            .padding(start = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        category.groups.forEach { group ->
-                            GroupItem(
-                                group = group,
-                                onEvent = onEvent
-                            )
-                        }
+                    category.groups.forEach { group ->
+                        GroupItem(
+                            group = group,
+                            onEvent = onEvent
+                        )
                     }
                 }
             }
         }
     }
+}

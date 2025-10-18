@@ -19,7 +19,7 @@ import com.riakol.todojc.data.local.entity.TaskList
         GroupList::class,
         TaskList::class,
         SubTaskList::class],
-    version = 6
+    version = 7
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun categoryListDao(): CategoryListDao

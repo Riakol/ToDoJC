@@ -2,6 +2,7 @@ package com.riakol.todojc.presentation.mainScreen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -104,8 +105,6 @@ fun Main_screen(
         viewModel = viewModel,
         onDismiss = { dialogState = DialogMainScreenState.None }
     )
-
-
 }
 
 @Composable
@@ -203,32 +202,28 @@ private fun DynamicContentList(
     onEvent: (DynamicListEvent) -> Unit
 ) {
     LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 15.dp),
+        modifier = Modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(
             itemsState,
             contentType = { item -> item.javaClass }
         ) { item ->
-            when (item) {
-                is MainScreenItem.CategoryItem -> {
-                    CategoryItemDropdownMenu(
-                        category = item.category,
-                        onEvent = onEvent,
-                    )
-                }
+            Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                when (item) {
+                    is MainScreenItem.CategoryItem -> {
+                        CategoryItemDropdownMenu(
+                            category = item.category,
+                            onEvent = onEvent,
+                        )
+                    }
 
-                is MainScreenItem.GroupItem -> {
-                    GroupItem(
-                        item.group,
-                        onEvent = onEvent,
-//                        onGroupClick = onGroupClick,
-//                        onRenameClick = { onRenameGroupClick(item.group) },
-//                        onDeleteClick = { onDeleteGroupClick(item.group) },
-//                        onMoveClick = { onMoveGroupClick(item.group) }
-                    )
+                    is MainScreenItem.GroupItem -> {
+                        GroupItem(
+                            item.group,
+                            onEvent = onEvent,
+                        )
+                    }
                 }
             }
         }
@@ -245,10 +240,10 @@ private fun HandleDialogs(
         is DialogMainScreenState.None -> {}
         is DialogMainScreenState.AddNewCategory -> {
             AddNewCategoryDialog(
-                onDismiss = onDismiss,
+                onDismiss = { onDismiss() },
                 onConfirm = { newName ->
                     viewModel.addCategory(newName)
-                    onDismiss
+                    onDismiss()
                 }
             )
         }

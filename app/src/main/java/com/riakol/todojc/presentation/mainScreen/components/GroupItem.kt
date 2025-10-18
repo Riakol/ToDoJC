@@ -3,7 +3,7 @@ package com.riakol.todojc.presentation.mainScreen.components
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -18,7 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.riakol.todojc.domain.model.Group
 import com.riakol.todojc.presentation.common.GroupOptionsMenu
-import com.riakol.todojc.presentation.mainScreen.components.DynamicListEvent.*
+import com.riakol.todojc.presentation.mainScreen.components.DynamicListEvent.OnDeleteGroupClick
+import com.riakol.todojc.presentation.mainScreen.components.DynamicListEvent.OnRenameGroupClick
 
 @Composable
 fun GroupItem(
@@ -28,8 +29,8 @@ fun GroupItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onEvent(DynamicListEvent.OnGroupClick(group.id)) }
-            .padding(horizontal = 16.dp),
+            .height(48.dp)
+            .clickable { onEvent(DynamicListEvent.OnGroupClick(group.id)) },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -61,7 +62,7 @@ fun AddNewGroup(
     var groupName by rememberSaveable { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = {
-            onDismiss
+            onDismiss()
         },
         title = { Text("Enter group title") },
         text = {
@@ -76,6 +77,7 @@ fun AddNewGroup(
             TextButton(
                 onClick = {
                     onConfirm(groupName)
+                    onDismiss()
                 },
                 enabled = groupName.isNotBlank()
             ) {
@@ -84,7 +86,7 @@ fun AddNewGroup(
         },
         dismissButton = {
             TextButton(
-                onClick = onDismiss
+                onClick = { onDismiss() }
             ) {
                 Text("CANCEL")
             }
