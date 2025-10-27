@@ -33,4 +33,8 @@ class TaskRepositoryImpl @Inject constructor(
     override suspend fun deleteTask(task: Task) {
         taskDao.deleteTask(task.toTaskList())
     }
+
+    override suspend fun deleteMultipleTask(tasks: List<Int>) {
+        taskDao.removeMultipleTasks(tasks)
+    }
 }

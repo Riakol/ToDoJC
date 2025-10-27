@@ -1,8 +1,10 @@
 package com.riakol.todojc.presentation.groupScreen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,9 +18,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DensityMedium
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Update
 import androidx.compose.material.icons.outlined.ChangeCircle
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Circle
@@ -26,7 +30,10 @@ import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,9 +42,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -69,6 +78,13 @@ fun GroupScreen(
     val tasksState by viewModel.tasks.collectAsStateWithLifecycle()
     val groupDetailsState by viewModel.groupDetails.collectAsStateWithLifecycle()
     val group = groupDetailsState
+    var isInSelectionMode by remember { mutableStateOf(false) }
+    val selectedTaskIds = remember { mutableStateSetOf<Int>() }
+
+    BackHandler(enabled = isInSelectionMode) {
+        isInSelectionMode = false
+        selectedTaskIds.clear()
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -90,63 +106,67 @@ fun GroupScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                IconButton(
-                    onClick = { navController.navigateUp() }
+            if (isInSelectionMode) {
+                SelectionTopAppBar(
+                    selectedItemCount = selectedTaskIds.size,
+                    onCloseClick = {
+                        isInSelectionMode = false
+                        selectedTaskIds.clear()
+                    },
+                    onSelectAllClick = {
+                        selectedTaskIds.addAll(tasksState.map { it.id })
+                    },
+                    onDeleteSelectedClick = {
+                        dialogState = DialogTaskState.RemoveMultipleTasks(selectedTaskIds.toSet())
+                    },
+                )
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back"
-                    )
-                }
-//                IconButton(
-//                    onClick = {
-//                        GroupOptionsMenu(
-//
-//                        ) {
-//
-//                        }
-//                    },
-//                ) {
-//                    Icon(
-//                        imageVector = Icons.Default.MoreVert,
-//                        contentDescription = "Group options",
-//                    )
-//                }
-                if (group != null) {
-                    GroupOptionsMenu(
-                        group = group,
-                        onEvent = { event ->
-                            when (event) {
-                                is DynamicListEvent.OnRenameGroupClick -> {
-                                    dialogState = DialogTaskState.RenameGroup(
-                                        event.group.id
-                                    )
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+
+                    groupDetailsState?.name?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    if (group != null) {
+                        GroupOptionsMenu(
+                            group = group,
+                            onEvent = { event ->
+                                when (event) {
+                                    is DynamicListEvent.OnRenameGroupClick -> {
+                                        dialogState = DialogTaskState.RenameGroup(
+                                            event.group.id
+                                        )
+                                    }
+
+                                    is DynamicListEvent.OnDeleteGroupClick -> {
+                                        dialogState = DialogTaskState.RemoveGroup(
+                                            event.group
+                                        )
+                                    }
+
+                                    else -> {}
                                 }
-                                is DynamicListEvent.OnDeleteGroupClick -> {
-                                    dialogState = DialogTaskState.RemoveGroup(
-                                        event.group
-                                    )
-                                }
-                                else -> {}
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-            groupDetailsState?.name?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-            }
             Spacer(modifier = Modifier.height(32.dp))
             LazyColumn(
                 Modifier
@@ -155,16 +175,31 @@ fun GroupScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(tasksState) { task ->
+                    val isSelected = task.id in selectedTaskIds
                     TaskCardItem(
                         task = task,
+                        isSelected = isSelected,
                         onTaskClick = { taskId ->
-                            navController.navigate("task_screen/${taskId}")
+                            if (isInSelectionMode) {
+                                if (isSelected) {
+                                    selectedTaskIds.remove(task.id)
+                                } else {
+                                    selectedTaskIds.add(task.id)
+                                }
+                                if (selectedTaskIds.isEmpty()) {
+                                    isInSelectionMode = false
+                                }
+                            } else {
+                                navController.navigate("task_screen/${taskId}")
+                            }
                         },
                         onToggleClick = {
                             viewModel.toggleTaskCompletion(task)
                         },
-                        onRemoveClick = {
-                            dialogState = DialogTaskState.RemoveTask(task)
+                        onLongClick = {
+                            isInSelectionMode = true
+                            selectedTaskIds.add(task.id)
+                            //dialogState = DialogTaskState.RemoveTask(task)
                         },
                         onFavouriteClick = {
                             viewModel.toggleFavoriteStatus(task)
@@ -212,6 +247,7 @@ fun GroupScreen(
                 )
             }
         }
+
         is DialogTaskState.RenameGroup -> {
             if (group != null) {
                 RenameGroupDialog(
@@ -224,9 +260,80 @@ fun GroupScreen(
                 )
             }
         }
-    }
 
+        is DialogTaskState.RemoveMultipleTasks -> {
+            RemoveTaskDialog(
+                taskName = "${currentDialog.tasksId.size} items",
+                onDismiss = { dialogState = DialogTaskState.None },
+                onConfirm = {
+                    viewModel.removeMultipleTasks(currentDialog.tasksId)
+                    isInSelectionMode = false
+                    selectedTaskIds.clear()
+                    dialogState = DialogTaskState.None
+                }
+            )
+        }
+    }
 }
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SelectionTopAppBar(
+    selectedItemCount: Int,
+    onCloseClick: () -> Unit,
+    onSelectAllClick: () -> Unit,
+    onDeleteSelectedClick: () -> Unit
+) {
+    TopAppBar(
+        title = { Text("$selectedItemCount") },
+        navigationIcon = {
+            IconButton(
+                onClick = onCloseClick
+            ) {
+                Icon(Icons.Default.Close, contentDescription = "Close selection mode")
+            }
+        },
+        actions = {
+            var isMenuExpanded by remember { mutableStateOf(false) }
+
+            Box {
+                IconButton(onClick = { isMenuExpanded = true }) {
+                    Icon(Icons.Default.MoreVert, contentDescription = "More options")
+                }
+
+                DropdownMenu(
+                    expanded = isMenuExpanded,
+                    onDismissRequest = { isMenuExpanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Select all") },
+                        onClick = {
+                            onSelectAllClick()
+                            isMenuExpanded = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Move") },
+                        onClick = { /* TODO */ }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Copy") },
+                        onClick = { /* TODO */ }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Delete selected") },
+                        onClick = {
+                            onDeleteSelectedClick()
+                            isMenuExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+    )
+}
+
 
 @Composable
 fun AddNewTaskDialog(
@@ -271,8 +378,9 @@ fun AddNewTaskDialog(
 fun TaskCardItem(
     task: Task,
     onTaskClick: (Int) -> Unit,
+    isSelected: Boolean,
     onToggleClick: () -> Unit,
-    onRemoveClick: () -> Unit,
+    onLongClick: () -> Unit,
     onFavouriteClick: () -> Unit
 ) {
     val completedCount = task.subTasks.count { it.isCompleted }
@@ -280,7 +388,8 @@ fun TaskCardItem(
 
     ElevatedCard(
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer
+            else MaterialTheme.colorScheme.surfaceVariant,
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
@@ -292,7 +401,7 @@ fun TaskCardItem(
                     onTaskClick(task.id)
                 },
                 onLongClick = {
-                    onRemoveClick()
+                    onLongClick()
                 }
             )
     ) {
@@ -330,8 +439,10 @@ fun TaskCardItem(
 
             Spacer(modifier = Modifier.weight(1f))
             if (task != null) {
-                val text = if (task.isFavourite) "Remove from favorites" else "Add to My Favourites"
-                val icon = if (task.isFavourite) R.drawable.heart else R.drawable.heart_outline
+                val text =
+                    if (task.isFavourite) "Remove from favorites" else "Add to My Favourites"
+                val icon =
+                    if (task.isFavourite) R.drawable.heart else R.drawable.heart_outline
 
                 IconButton(
                     onClick = {

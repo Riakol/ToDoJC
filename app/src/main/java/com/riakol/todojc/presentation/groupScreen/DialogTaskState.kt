@@ -10,4 +10,5 @@ sealed interface DialogTaskState {
     data object AddNewTask: DialogTaskState
     data class RenameGroup(val groupId: Int): DialogTaskState
     data class RemoveGroup(val group: Group): DialogTaskState
+    data class RemoveMultipleTasks(val tasksId: Set<Int>): DialogTaskState
 }

@@ -31,4 +31,7 @@ interface TaskDao {
     @Transaction
     @Query("SELECT * FROM tasks WHERE group_id = :groupId")
     fun getTasksWithSubTasks(groupId: Int): Flow<List<TaskWithSubTasks>>
+
+    @Query("DELETE FROM tasks WHERE id IN (:taskIds)")
+    suspend fun removeMultipleTasks(taskIds: List<Int>)
 }

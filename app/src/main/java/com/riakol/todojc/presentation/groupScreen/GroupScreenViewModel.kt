@@ -10,6 +10,7 @@ import com.riakol.todojc.domain.usecase.group.GetGroupDetailsUseCase
 import com.riakol.todojc.domain.usecase.group.RemoveGroupUseCase
 import com.riakol.todojc.domain.usecase.group.UpdateGroupUseCase
 import com.riakol.todojc.domain.usecase.task.GetTasksUseCase
+import com.riakol.todojc.domain.usecase.task.RemoveMultipleTasksUseCase
 import com.riakol.todojc.domain.usecase.task.RemoveTaskUseCase
 import com.riakol.todojc.domain.usecase.task.UpdateTaskUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,6 +27,7 @@ class GroupScreenViewModel @Inject constructor(
     private val updateTaskUseCase: UpdateTaskUseCase,
     private val removeTaskUseCase: RemoveTaskUseCase,
     private val removeGroupUseCase: RemoveGroupUseCase,
+    private val removeMultipleTasksUseCase: RemoveMultipleTasksUseCase,
     private val updateGroupUseCase: UpdateGroupUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -87,6 +89,12 @@ class GroupScreenViewModel @Inject constructor(
     fun removeTask(task: Task) {
         viewModelScope.launch {
             removeTaskUseCase(task)
+        }
+    }
+
+    fun removeMultipleTasks(taskIds: Set<Int>) {
+        viewModelScope.launch {
+            removeMultipleTasksUseCase(taskIds.toList())
         }
     }
 
