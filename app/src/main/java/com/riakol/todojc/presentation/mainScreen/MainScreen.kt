@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -83,9 +84,25 @@ fun Main_screen(
                                 category = item.category,
                                 onEvent = { event ->
                                     when (event) {
-                                        is DynamicListEvent.OnRenameCategoryClick -> dialogState = RenameCategory(event.category)
-                                        is DynamicListEvent.OnDeleteCategoryClick -> dialogState = RemoveCategory(event.category)
-                                        else -> { }
+                                        is DynamicListEvent.OnGroupClick -> {
+                                            navController.navigate("group_screen/${event.groupId}")
+                                        }
+                                        is DynamicListEvent.OnDeleteGroupClick -> {
+                                            dialogState = RemoveGroup(event.group)
+                                        }
+                                        is DynamicListEvent.OnRenameGroupClick -> {
+                                            dialogState = RenameGroup(event.group)
+                                        }
+                                        is DynamicListEvent.OnAddNewGroupInListClick -> {
+                                            dialogState = AddNewGroup(event.categoryId)
+                                        }
+                                        is DynamicListEvent.OnRenameCategoryClick -> {
+                                            dialogState = RenameCategory(event.category)
+                                        }
+                                        is DynamicListEvent.OnDeleteCategoryClick -> {
+                                            dialogState = RemoveCategory(event.category)
+                                        }
+                                        else -> {}
                                     }
                                 },
                             )
@@ -190,7 +207,7 @@ private fun HandleDialogs(
     viewModel: MainViewModel,
     onDismiss: () -> Unit
 ) {
-    when (val currentDialog = dialogState) {
+    when (dialogState) {
         is DialogMainScreenState.None -> {}
         is DialogMainScreenState.AddNewCategory -> {
             AddNewCategoryDialog(
@@ -204,10 +221,10 @@ private fun HandleDialogs(
 
         is DialogMainScreenState.RenameCategory -> {
             RenameCategoryDialog(
-                category = currentDialog.category,
+                category = dialogState.category,
                 onDismiss = { onDismiss() }
             ) { newTitle ->
-                viewModel.renameCategory(currentDialog.category, newTitle)
+                viewModel.renameCategory(dialogState.category, newTitle)
                 onDismiss()
             }
         }
@@ -217,7 +234,7 @@ private fun HandleDialogs(
                 onDismiss = onDismiss,
                 onConfirm = { groupName ->
                     viewModel.addUnassignedGroup(groupName)
-                    onDismiss
+                    onDismiss()
                 }
             )
         }
@@ -226,7 +243,7 @@ private fun HandleDialogs(
             AddNewGroup(
                 onDismiss = onDismiss,
                 onConfirm = { groupName ->
-                    viewModel.addGroup(groupName, currentDialog.categoryId)
+                    viewModel.addGroup(groupName, dialogState.categoryId)
                     onDismiss()
                 }
             )
@@ -234,20 +251,20 @@ private fun HandleDialogs(
 
         is DialogMainScreenState.RenameGroup -> {
             RenameGroupDialog(
-                group = currentDialog.group,
+                group = dialogState.group,
                 onDismiss = { onDismiss() },
                 onConfirm = { newTitle ->
-                    viewModel.onGroupNameChanged(currentDialog.group, newTitle)
+                    viewModel.onGroupNameChanged(dialogState.group, newTitle)
                     onDismiss()
                 }
             )
         }
         is DialogMainScreenState.RemoveGroup -> {
             RemoveGroupDialog(
-                group = currentDialog.group,
+                group = dialogState.group,
                 onDismiss = { onDismiss() },
                 onConfirm = {
-                    viewModel.removeGroup(currentDialog.group)
+                    viewModel.removeGroup(dialogState.group)
                     onDismiss()
                 }
             )
@@ -255,10 +272,10 @@ private fun HandleDialogs(
         is DialogMainScreenState.MoveGroup -> {}
         is DialogMainScreenState.RemoveCategory -> {
             RemoveCategoryDialog(
-                category = currentDialog.category,
+                category = dialogState.category,
                 onDismiss = { onDismiss() },
                 onConfirm = {
-                    viewModel.removeCategory(currentDialog.category)
+                    viewModel.removeCategory(dialogState.category)
                     onDismiss()
                 }
             )

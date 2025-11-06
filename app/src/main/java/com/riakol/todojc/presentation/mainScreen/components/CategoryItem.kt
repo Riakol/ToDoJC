@@ -66,7 +66,6 @@ fun CategoryItemDropdownMenu(
         modifier = Modifier.fillMaxWidth()
     ) {
         Column {
-            // Заголовок категории
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -82,7 +81,6 @@ fun CategoryItemDropdownMenu(
                     modifier = Modifier.padding(start = 16.dp)
                 )
                 Row {
-                    // Кнопка "Добавить группу" слева от меню (опционально — можно убрать)
                     IconButton(
                         onClick = {
                             onEvent(DynamicListEvent.OnAddNewGroupInListClick(category.id))
@@ -95,13 +93,11 @@ fun CategoryItemDropdownMenu(
                         )
                     }
 
-                    // Меню управления категорией
                     CategoryOptionsMenu(
                         category = category,
                         onEvent = onEvent
                     )
 
-                    // Стрелка раскрытия
                     Icon(
                         imageVector = Icons.Default.ArrowDropDown,
                         contentDescription = "Expand category",
@@ -111,7 +107,6 @@ fun CategoryItemDropdownMenu(
                 }
             }
 
-            // Выпадающий список групп
             AnimatedVisibility(
                 visible = isExpanded,
                 enter = expandVertically(),

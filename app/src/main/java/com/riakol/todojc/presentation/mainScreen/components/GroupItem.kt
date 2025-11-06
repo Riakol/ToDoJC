@@ -58,11 +58,11 @@ fun GroupItem(
             group = group,
             onEvent = { event ->
                 when (event) {
-                    is DynamicListEvent.OnRenameGroupClick -> {
-                        onEvent(DynamicListEvent.OnRenameGroupClick(group))
+                    is OnRenameGroupClick -> {
+                        onEvent(OnRenameGroupClick(group))
                     }
-                    is DynamicListEvent.OnDeleteGroupClick -> {
-                        onEvent(DynamicListEvent.OnDeleteGroupClick(group))
+                    is OnDeleteGroupClick -> {
+                        onEvent(OnDeleteGroupClick(group))
                     }
                     else -> {}
                 }
@@ -71,20 +71,19 @@ fun GroupItem(
     }
 }
 
-// Остальное без изменений
 @Composable
 fun AddNewGroup(
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit
 ) {
     var groupName by rememberSaveable { mutableStateOf("") }
-    androidx.compose.material3.AlertDialog(
+    AlertDialog(
         onDismissRequest = {
             onDismiss()
         },
         title = { Text("Enter group title") },
         text = {
-            androidx.compose.material3.OutlinedTextField(
+            OutlinedTextField(
                 value = groupName,
                 onValueChange = { groupName = it },
                 label = { Text("Group name") },
@@ -103,7 +102,7 @@ fun AddNewGroup(
             }
         },
         dismissButton = {
-            androidx.compose.material3.TextButton(
+            TextButton(
                 onClick = { onDismiss() }
             ) {
                 Text("CANCEL")

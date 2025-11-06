@@ -18,7 +18,7 @@ fun AddNewCategoryDialog(
     var listName by rememberSaveable { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = {
-            onDismiss
+            onDismiss()
         },
         title = { Text("Enter list title") },
         text = {
