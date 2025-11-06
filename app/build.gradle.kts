@@ -45,6 +45,7 @@ dependencies {
     //Room
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.runtime)
+    implementation(libs.room.ktx)
     ksp(libs.androidx.room.compiler)
 
     //Hilt

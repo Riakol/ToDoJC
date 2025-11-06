@@ -20,7 +20,7 @@ import androidx.navigation.navArgument
 import com.riakol.todojc.presentation.groupScreen.GroupScreen
 import com.riakol.todojc.presentation.mainScreen.MainViewModel
 import com.riakol.todojc.presentation.taskScreen.TaskScreen
-import com.riakol.todojs.ui.theme.TodoJSTheme
+import com.riakol.todojc.ui.theme.TodoJSTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

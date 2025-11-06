@@ -13,14 +13,15 @@ import com.riakol.todojc.domain.usecase.subtask.RemoveSubTaskUseCase
 import com.riakol.todojc.domain.usecase.subtask.UpdateSubTaskUseCase
 import com.riakol.todojc.domain.usecase.task.GetTaskDetailsUseCase
 import com.riakol.todojc.domain.usecase.task.RemoveTaskUseCase
+import com.riakol.todojc.domain.usecase.task.SetReminderUseCase
 import com.riakol.todojc.domain.usecase.task.UpdateTaskUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class TaskScreenViewModel @Inject constructor(
@@ -31,7 +32,9 @@ class TaskScreenViewModel @Inject constructor(
     private val removeSubTaskUseCase: RemoveSubTaskUseCase,
     private val updateTaskUseCase: UpdateTaskUseCase,
     private val getGroupDetailsUseCase: GetGroupDetailsUseCase,
+    private val setReminderUseCase: SetReminderUseCase,
     private val removeTaskUseCase: RemoveTaskUseCase,
+//    private val taskScheduler: TaskScheduler,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _taskDetails = MutableStateFlow<Task?>(null)
@@ -46,32 +49,32 @@ class TaskScreenViewModel @Inject constructor(
     private val _groupDetails = MutableStateFlow<Group?>(null)
     val groupDetails: StateFlow<Group?> = _groupDetails
 
-        init {
-            savedStateHandle.get<Int>("taskId")?.let { taskId ->
-                viewModelScope.launch {
-                    getTaskDetailsUseCase(taskId)
-                        .flatMapLatest { task ->
-                            _taskDetails.value = task
-                            _noteText.value = task?.description ?: ""
+    init {
+        savedStateHandle.get<Int>("taskId")?.let { taskId ->
+            viewModelScope.launch {
+                getTaskDetailsUseCase(taskId)
+                    .flatMapLatest { task ->
+                        _taskDetails.value = task
+                        _noteText.value = task?.description ?: ""
 
-                            if (task != null) {
-                                getGroupDetailsUseCase(task.groupId)
-                            } else {
-                                flowOf(null)
-                            }
+                        if (task != null) {
+                            getGroupDetailsUseCase(task.groupId)
+                        } else {
+                            flowOf(null)
                         }
-                        .collect { group ->
-                            _groupDetails.value = group
-                        }
-                }
-
-                viewModelScope.launch {
-                    getSubTasksUseCase(taskId).collect { subTasks ->
-                        _subTasks.value = subTasks
                     }
+                    .collect { group ->
+                        _groupDetails.value = group
+                    }
+            }
+
+            viewModelScope.launch {
+                getSubTasksUseCase(taskId).collect { subTasks ->
+                    _subTasks.value = subTasks
                 }
             }
         }
+    }
 
     fun saveNote() {
         viewModelScope.launch {
@@ -147,4 +150,26 @@ class TaskScreenViewModel @Inject constructor(
             updateTaskUseCase(updatedTask)
         }
     }
+
+//    fun setReminder(reminderTimestamp: Long) {
+//        _taskDetails.value?.let { currentTask ->
+//            viewModelScope.launch {
+//                val updatedTask = currentTask.copy(reminderDate = reminderTimestamp)
+//                setReminderUseCase(updatedTask, reminderTimestamp)
+//                taskScheduler.schedule(updatedTask)
+//                _taskDetails.value = updatedTask
+//            }
+//        }
+//    }
+
+//    fun clearReminder() {
+//        _taskDetails.value?.let { currentTask ->
+//            viewModelScope.launch {
+//                val updatedTask = currentTask.copy(reminderDate = null)
+//                setReminderUseCase(updatedTask, null)
+//                taskScheduler.cancel(currentTask)
+//                _taskDetails.value = updatedTask
+//            }
+//        }
+//    }
 }

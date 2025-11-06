@@ -11,10 +11,11 @@ composeBom = "2025.09.01"
 appcompat = "1.7.1"
 material = "1.13.0"
 hilt-version = "2.57.2"
-googleKsp = "2.2.10-2.0.2"
+googleKsp = "2.2.20-2.0.4"
 materialIconsExtended = "1.7.8"
 navVersion = "2.9.5"
 roomVersion = "2.8.1"
+roomKtx = "2.8.3"
 
 [libraries]
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
@@ -41,6 +42,7 @@ material = { group = "com.google.android.material", name = "material", version.r
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt-version" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt-version" }
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version = "1.2.0" }
+room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

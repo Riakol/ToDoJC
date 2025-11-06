@@ -18,10 +18,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Update
 import androidx.compose.material3.DropdownMenu
@@ -29,6 +32,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
@@ -45,138 +49,133 @@ import androidx.compose.ui.unit.dp
 import com.riakol.todojc.domain.model.Category
 
 @Composable
-fun CategoryItemOptions(
-    category: Category,
-    onEvent: (DynamicListEvent) -> Unit
-) {
-    var isExpanded by remember { mutableStateOf(false) }
-
-    Box {
-        IconButton(
-            onClick = { isExpanded = !isExpanded },
-        ) {
-            Icon(
-                imageVector = Icons.Default.MoreVert,
-                contentDescription = "Group Options",
-            )
-        }
-        DropdownMenu(
-            expanded = isExpanded,
-            onDismissRequest = { isExpanded = false },
-        ) {
-            DropdownMenuItem(
-                text = { Text("Rename category") },
-                leadingIcon = {
-                    Icon(
-                        Icons.Default.Update,
-                        contentDescription = "Rename category"
-                    )
-                },
-                onClick = {
-                    onEvent(DynamicListEvent.OnRenameCategoryClick(category))
-                    isExpanded = false
-                }
-            )
-            DropdownMenuItem(
-                text = { Text("Add group") },
-                leadingIcon = {
-                    Icon(
-                        Icons.Default.AddCircleOutline,
-                        contentDescription = "Add group"
-                    )
-                },
-                onClick = {
-                    onEvent(DynamicListEvent.OnAddNewGroupInListClick(category.id))
-                    isExpanded = false
-                }
-            )
-            DropdownMenuItem(
-                text = { Text("Delete category") },
-                leadingIcon = {
-                    Icon(
-                        Icons.Default.DeleteForever,
-                        contentDescription = "delete category"
-                    )
-                },
-                onClick = {
-                    onEvent(DynamicListEvent.OnDeleteCategoryClick(category))
-                    isExpanded = false
-                }
-            )
-        }
-    }
-}
-
-@Composable
 fun CategoryItemDropdownMenu(
     category: Category,
     onEvent: (DynamicListEvent) -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(false) }
-    val rotationAngle by animateFloatAsState(
-        targetValue = if (isExpanded) 0f else 90f,
-        label = "rotation"
+    val rotation by animateFloatAsState(
+        targetValue = if (isExpanded) 180f else 0f,
+        label = "expand arrow"
     )
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
+
+    Surface(
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        tonalElevation = 1.dp,
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp)
-                .clickable { isExpanded = !isExpanded },
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = category.name,
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-
-            if (isExpanded) CategoryItemOptions(
-                category = category,
-                onEvent = onEvent
-            )
-            Icon(
-                imageVector = Icons.Default.ArrowDropDown,
-                contentDescription = "Expand",
-                modifier = Modifier.rotate(rotationAngle)
-            )
-        }
-
-        AnimatedVisibility(
-            visible = isExpanded,
-            enter = expandVertically(),
-            exit = shrinkVertically()
-        ) {
+        Column {
+            // Заголовок категории
             Row(
                 modifier = Modifier
-                    .padding(start = 32.dp, top = 8.dp, bottom = 8.dp)
-                    .height(IntrinsicSize.Min),
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .clickable { isExpanded = !isExpanded },
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                VerticalDivider(
-                    modifier = Modifier.fillMaxHeight(),
-                    thickness = 3.dp,
-                    color = Color.Gray
+                Text(
+                    text = category.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(start = 16.dp)
                 )
-                Spacer(modifier = Modifier.width(16.dp))
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .defaultMinSize(minHeight = 48.dp)
-                        .padding(start = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    category.groups.forEach { group ->
-                        GroupItem(
-                            group = group,
-                            onEvent = onEvent
+                Row {
+                    // Кнопка "Добавить группу" слева от меню (опционально — можно убрать)
+                    IconButton(
+                        onClick = {
+                            onEvent(DynamicListEvent.OnAddNewGroupInListClick(category.id))
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add group",
+                            tint = MaterialTheme.colorScheme.primary
                         )
+                    }
+
+                    // Меню управления категорией
+                    CategoryOptionsMenu(
+                        category = category,
+                        onEvent = onEvent
+                    )
+
+                    // Стрелка раскрытия
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = "Expand category",
+                        modifier = Modifier.rotate(rotation),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            // Выпадающий список групп
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Column(
+                    modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 16.dp)
+                ) {
+                    if (category.groups.isEmpty()) {
+                        Text(
+                            text = "No groups yet",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = 24.dp, top = 4.dp, bottom = 4.dp)
+                        )
+                    } else {
+                        category.groups.forEach { group ->
+                            GroupItem(
+                                group = group,
+                                onEvent = onEvent,
+                                modifier = Modifier.padding(start = 24.dp, top = 2.dp, bottom = 2.dp)
+                            )
+                        }
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun CategoryOptionsMenu(
+    category: Category,
+    onEvent: (DynamicListEvent) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    Box {
+        IconButton(onClick = { expanded = true }) {
+            Icon(
+                imageVector = Icons.Default.MoreVert,
+                contentDescription = "Category options",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                text = { Text("Rename") },
+                leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) },
+                onClick = {
+                    onEvent(DynamicListEvent.OnRenameCategoryClick(category))
+                    expanded = false
+                }
+            )
+            DropdownMenuItem(
+                text = { Text("Delete") },
+                leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null) },
+                onClick = {
+                    onEvent(DynamicListEvent.OnDeleteCategoryClick(category))
+                    expanded = false
+                }
+            )
         }
     }
 }

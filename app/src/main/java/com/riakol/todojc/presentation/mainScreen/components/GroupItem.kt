@@ -2,9 +2,16 @@ package com.riakol.todojc.presentation.mainScreen.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -24,17 +31,27 @@ import com.riakol.todojc.presentation.mainScreen.components.DynamicListEvent.OnR
 @Composable
 fun GroupItem(
     group: Group,
-    onEvent: (DynamicListEvent) -> Unit
+    onEvent: (DynamicListEvent) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(48.dp)
             .clickable { onEvent(DynamicListEvent.OnGroupClick(group.id)) },
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Icon(
+            imageVector = Icons.Default.Folder,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(18.dp)
+        )
+        Spacer(modifier = Modifier.width(12.dp))
         Text(
             text = group.name,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
         GroupOptionsMenu(
@@ -42,10 +59,10 @@ fun GroupItem(
             onEvent = { event ->
                 when (event) {
                     is DynamicListEvent.OnRenameGroupClick -> {
-                        onEvent(OnRenameGroupClick(group))
+                        onEvent(DynamicListEvent.OnRenameGroupClick(group))
                     }
                     is DynamicListEvent.OnDeleteGroupClick -> {
-                        onEvent(OnDeleteGroupClick(group))
+                        onEvent(DynamicListEvent.OnDeleteGroupClick(group))
                     }
                     else -> {}
                 }
@@ -54,19 +71,20 @@ fun GroupItem(
     }
 }
 
+// Остальное без изменений
 @Composable
 fun AddNewGroup(
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit
 ) {
     var groupName by rememberSaveable { mutableStateOf("") }
-    AlertDialog(
+    androidx.compose.material3.AlertDialog(
         onDismissRequest = {
             onDismiss()
         },
         title = { Text("Enter group title") },
         text = {
-            OutlinedTextField(
+            androidx.compose.material3.OutlinedTextField(
                 value = groupName,
                 onValueChange = { groupName = it },
                 label = { Text("Group name") },
@@ -74,7 +92,7 @@ fun AddNewGroup(
             )
         },
         confirmButton = {
-            TextButton(
+            androidx.compose.material3.TextButton(
                 onClick = {
                     onConfirm(groupName)
                     onDismiss()
@@ -85,7 +103,7 @@ fun AddNewGroup(
             }
         },
         dismissButton = {
-            TextButton(
+            androidx.compose.material3.TextButton(
                 onClick = { onDismiss() }
             ) {
                 Text("CANCEL")

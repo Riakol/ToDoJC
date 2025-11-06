@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,9 +15,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,8 +37,11 @@ import com.riakol.todojc.presentation.common.RemoveCategoryDialog
 import com.riakol.todojc.presentation.common.RemoveGroupDialog
 import com.riakol.todojc.presentation.common.RenameCategoryDialog
 import com.riakol.todojc.presentation.common.RenameGroupDialog
-import com.riakol.todojc.presentation.groupScreen.DialogTaskState
-import com.riakol.todojc.presentation.mainScreen.DialogMainScreenState.*
+import com.riakol.todojc.presentation.mainScreen.DialogMainScreenState.AddNewGroup
+import com.riakol.todojc.presentation.mainScreen.DialogMainScreenState.RemoveCategory
+import com.riakol.todojc.presentation.mainScreen.DialogMainScreenState.RemoveGroup
+import com.riakol.todojc.presentation.mainScreen.DialogMainScreenState.RenameCategory
+import com.riakol.todojc.presentation.mainScreen.DialogMainScreenState.RenameGroup
 import com.riakol.todojc.presentation.mainScreen.components.AddNewCategoryDialog
 import com.riakol.todojc.presentation.mainScreen.components.AddNewGroup
 import com.riakol.todojc.presentation.mainScreen.components.CategoryItemDropdownMenu
@@ -61,42 +65,48 @@ fun Main_screen(
             )
         }
     ) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier.padding(paddingValues),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            StaticActionList()
-            DynamicContentList(
+            item {
+                StaticActionList()
+            }
+            items(
                 itemsState,
-                navController,
-                onEvent = { event ->
-                    when (event) {
-                        is DynamicListEvent.OnGroupClick -> {
-                            navController.navigate("group_screen/${event.groupId}")
+                contentType = { item -> item.javaClass }
+            ) { item ->
+                Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    when (item) {
+                        is MainScreenItem.CategoryItem -> {
+                            CategoryItemDropdownMenu(
+                                category = item.category,
+                                onEvent = { event ->
+                                    when (event) {
+                                        is DynamicListEvent.OnRenameCategoryClick -> dialogState = RenameCategory(event.category)
+                                        is DynamicListEvent.OnDeleteCategoryClick -> dialogState = RemoveCategory(event.category)
+                                        else -> { }
+                                    }
+                                },
+                            )
                         }
-
-                        is DynamicListEvent.OnDeleteGroupClick -> {
-                            dialogState = RemoveGroup(event.group)
-                        }
-
-                        is DynamicListEvent.OnMoveGroupClick -> TODO()
-                        is DynamicListEvent.OnRenameCategoryClick -> {
-                            dialogState = RenameCategory(event.category)
-                        }
-
-                        is DynamicListEvent.OnRenameGroupClick -> {
-                            dialogState = RenameGroup(event.group)
-                        }
-
-                        is DynamicListEvent.OnAddNewGroupInListClick -> {
-                            dialogState = AddNewGroup(event.categoryId)
-                        }
-
-                        is DynamicListEvent.OnDeleteCategoryClick -> {
-                            dialogState = RemoveCategory(event.category)
+                        is MainScreenItem.GroupItem -> {
+                            GroupItem(
+                                item.group,
+                                onEvent = { event ->
+                                    when (event) {
+                                        is DynamicListEvent.OnGroupClick -> navController.navigate("group_screen/${event.groupId}")
+                                        is DynamicListEvent.OnRenameGroupClick -> dialogState = RenameGroup(event.group)
+                                        is DynamicListEvent.OnDeleteGroupClick -> dialogState = RemoveGroup(event.group)
+                                        is DynamicListEvent.OnAddNewGroupInListClick -> dialogState = AddNewGroup(event.categoryId)
+                                        else -> {}
+                                    }
+                                },
+                            )
                         }
                     }
-                },
-            )
+                }
+            }
         }
     }
 
@@ -118,29 +128,20 @@ private fun MainBottomAppBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp),
+                .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
-                modifier = Modifier.clickable(
-                    onClick = onNewListClick
-                ),
+                modifier = Modifier.clickable(onClick = onNewListClick),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.plus), contentDescription = ""
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                Text("New list")
+                Icon(painter = painterResource(id = R.drawable.plus), contentDescription = "New list")
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("New list", style = MaterialTheme.typography.labelLarge)
             }
-            IconButton(
-                onClick = onNewGroupClick
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.card_plus_outline),
-                    contentDescription = ""
-                )
+            IconButton(onClick = onNewGroupClick) {
+                Icon(painter = painterResource(id = R.drawable.card_plus_outline), contentDescription = "New group")
             }
         }
     }
@@ -149,84 +150,37 @@ private fun MainBottomAppBar(
 @Composable
 private fun StaticActionList() {
     Column(
-        modifier = Modifier.padding(horizontal = 10.dp, vertical = 64.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp)
     ) {
-        Row(
-            modifier = Modifier.clickable {}, verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Default.FavoriteBorder,
-                contentDescription = "favorite"
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-            Text("My Favourites")
-        }
-        Row(
-            modifier = Modifier.clickable {}, verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.calendar_range),
-                contentDescription = ""
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-            Text("Planned")
-        }
-        Row(
-            modifier = Modifier.clickable {}, verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.account), contentDescription = ""
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-            Text("Assigned to me")
-        }
-        Row(
-            modifier = Modifier.clickable {}, verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.home_plus_outline),
-                contentDescription = ""
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-            Text("Tasks")
-        }
-        HorizontalDivider(thickness = 2.dp)
+        QuickActionItem(icon = Icons.Default.FavoriteBorder, label = "My Favourites")
+        QuickActionItem(icon = painterResource(R.drawable.calendar_range), label = "Planned")
+        QuickActionItem(icon = painterResource(R.drawable.account), label = "Assigned to me")
+        QuickActionItem(icon = painterResource(R.drawable.home_plus_outline), label = "Tasks")
+        Spacer(modifier = Modifier.height(16.dp))
+        Divider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
 @Composable
-private fun DynamicContentList(
-    itemsState: List<MainScreenItem>,
-    navController: NavController,
-    onEvent: (DynamicListEvent) -> Unit
-) {
-    LazyColumn(
-        modifier = Modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+private fun QuickActionItem(icon: Any, label: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .clickable { /* TODO */ },
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        items(
-            itemsState,
-            contentType = { item -> item.javaClass }
-        ) { item ->
-            Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-                when (item) {
-                    is MainScreenItem.CategoryItem -> {
-                        CategoryItemDropdownMenu(
-                            category = item.category,
-                            onEvent = onEvent,
-                        )
-                    }
-
-                    is MainScreenItem.GroupItem -> {
-                        GroupItem(
-                            item.group,
-                            onEvent = onEvent,
-                        )
-                    }
-                }
-            }
+        when (icon) {
+            is androidx.compose.ui.graphics.painter.Painter -> Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            is androidx.compose.ui.graphics.vector.ImageVector -> Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
         }
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 

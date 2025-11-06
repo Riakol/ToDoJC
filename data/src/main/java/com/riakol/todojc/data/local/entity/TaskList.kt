@@ -27,6 +27,9 @@ data class TaskList(
     @ColumnInfo(name = "creation_date")
     val creationDate: Long,
 
+    @ColumnInfo(name = "reminder_date")
+    val reminderDate: Long? = null,
+
     @ColumnInfo(name = "is_completed")
     val isCompleted: Boolean = false,
 

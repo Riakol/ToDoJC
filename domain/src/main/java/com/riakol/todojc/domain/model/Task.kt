@@ -5,6 +5,7 @@ data class Task(
     val title: String,
     val description: String?,
     val creationDate: Long,
+    val reminderDate: Long? = null,
     val isCompleted: Boolean = false,
     val groupId: Int,
     val isFavourite: Boolean = false,

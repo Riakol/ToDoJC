@@ -1,4 +1,4 @@
-package com.riakol.todojs.ui.theme
+package com.riakol.todojc.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -9,36 +9,61 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import com.riakol.todojc.ui.theme.GrayCard
-import com.riakol.todojc.ui.theme.Pink40
-import com.riakol.todojc.ui.theme.Pink80
-import com.riakol.todojc.ui.theme.Purple40
-import com.riakol.todojc.ui.theme.Purple80
-import com.riakol.todojc.ui.theme.PurpleGrey40
-import com.riakol.todojc.ui.theme.PurpleGrey80
-import com.riakol.todojc.ui.theme.White
+
+private val LightColorScheme = lightColorScheme(
+    primary = Purple40,
+    onPrimary = White,
+    primaryContainer = Purple90,
+    onPrimaryContainer = Purple10,
+    secondary = PurpleGrey40,
+    onSecondary = White,
+    secondaryContainer = PurpleGrey90,
+    onSecondaryContainer = PurpleGrey10,
+    tertiary = Pink40,
+    onTertiary = White,
+    tertiaryContainer = Pink90,
+    onTertiaryContainer = Pink10,
+    error = Red40,
+    onError = White,
+    errorContainer = Red90,
+    onErrorContainer = Red10,
+    background = White,
+    onBackground = Black,
+    surface = White,
+    onSurface = Black,
+    surfaceVariant = PurpleGrey90,
+    onSurfaceVariant = PurpleGrey30,
+    outline = PurpleGrey50,
+    outlineVariant = PurpleGrey80,
+    scrim = Black
+)
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
+    onPrimary = Purple20,
+    primaryContainer = Purple30,
+    onPrimaryContainer = Purple90,
     secondary = PurpleGrey80,
-    tertiary = Pink80
-)
-
-private val LightColorScheme = lightColorScheme(
-    primary = White,
-    secondary = PurpleGrey40,
-    tertiary = Pink40,
-    surfaceVariant = GrayCard
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    onSecondary = PurpleGrey20,
+    secondaryContainer = PurpleGrey30,
+    onSecondaryContainer = PurpleGrey90,
+    tertiary = Pink80,
+    onTertiary = Pink20,
+    tertiaryContainer = Pink30,
+    onTertiaryContainer = Pink90,
+    error = Red80,
+    onError = Red20,
+    errorContainer = Red30,
+    onErrorContainer = Red90,
+    background = Black,
+    onBackground = White,
+    surface = Black,
+    onSurface = White,
+    surfaceVariant = PurpleGrey30,
+    onSurfaceVariant = PurpleGrey80,
+    outline = PurpleGrey60,
+    outlineVariant = PurpleGrey50,
+    scrim = White
 )
 
 @Composable
